@@ -1,0 +1,14 @@
+{
+    "listen_list": [
+        "归归"
+    ],
+    "api_key": "sk-gipbdqrktcrohvezcpdofegiefxegwycjdrwctfiacktlojl",
+    "base_url": "https://api.siliconflow.cn/v1",
+    "AtMe": "@Siver. ",
+    "cmd": "归归",
+    "model1": "Pro/deepseek-ai/DeepSeek-R1",
+    "model2": "Pro/deepseek-ai/DeepSeek-V3",
+    "group": "幸福一家三口",
+    "group_switch": "False",
+    "DeepSeek官方API 网址 / 备用": "sk-d67f6ddb26e94cb1b2aec9c743ef9b56 / https://api.deepseek.com"
+}
