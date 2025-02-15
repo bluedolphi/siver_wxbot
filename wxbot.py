@@ -1,4 +1,9 @@
 
+# 作者：https://siver.top
+ver = 1.2
+print("wxbot\n版本:wxbot_"+ver+"\n作者:https://siver.top")
+
+
 import time
 from wxauto import WeChat
 import re
@@ -133,6 +138,7 @@ def DeekSeepChat(Msg, model, stream): # Msg->用户消息  model->模型选择  
 # AtMe = '@Siver. ' # @我
 wx = WeChat()
 def wxauto_init():
+    global wx
     wx = WeChat()
     for i in listen_list:
         wx.AddListenChat(who=i)  # 添加监听对象
@@ -162,8 +168,8 @@ while True:
                 if flag == False: break
                 # ===================================================
                 # 处理消息逻辑
-                if i.content == '你是谁':
-                    c.SendMsg('我是DeepSeek.')  # 向``发送微信客户端消息
+                if i.content == '你是谁' or re.sub(AtMe, "", i.content) == '你是谁':
+                    c.SendMsg('我是'+config['bot_name'])  # 向``发送微信客户端消息
 
                 else:
                     if c.who == config['group']: # 群消息@回答
