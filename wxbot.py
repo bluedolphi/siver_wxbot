@@ -1,6 +1,6 @@
 
 # 作者：https://siver.top
-ver = 1.2
+ver = "1.2"
 print("wxbot\n版本:wxbot_"+ver+"\n作者:https://siver.top")
 
 
