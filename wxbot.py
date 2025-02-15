@@ -163,7 +163,7 @@ while True:
                 # ===================================================
                 # 处理消息逻辑
                 if i.content == '你是谁':
-                    c.SendMsg('我是归归~')  # 向``发送微信客户端消息
+                    c.SendMsg('我是DeepSeek.')  # 向``发送微信客户端消息
 
                 else:
                     if c.who == config['group']: # 群消息@回答
