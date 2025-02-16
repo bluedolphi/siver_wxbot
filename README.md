@@ -1,10 +1,10 @@
-**Siver_wxbot**
+# Siver_wxbot
 
-**Siver微信机器人**
+# Siver微信机器人
 
 在发布版本中有打包好的.exe版本，可直接在windows运行，在windows电脑上登录微信4.0以下的版本，登录你要作为微信机器人的账号，启动wxbot程序即可运行。
 
-config.json文件说明:
+**config.json文件说明:**
 
 lis列表为监听列表，最开始时添加一个你的机器人号给大号备注名即可
 
