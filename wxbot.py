@@ -1,6 +1,6 @@
 
 # 作者：https://siver.top
-ver = "1.2"
+ver = "1.3"
 print("wxbot\n版本:wxbot_"+ver+"\n作者:https://siver.top")
 
 
@@ -182,7 +182,8 @@ while True:
                                 print(traceback.format_exc())
                                 reply = "API返回错误，请稍后再试"
 
-                            c.SendMsg('@'+i.sender+' '+reply)  # 向``发送微信客户端消息
+                            # c.SendMsg(msg = '@'+i.sender+' '+reply)  # 向``发送微信客户端消息
+                            c.SendMsg(msg=reply, at=i.sender)  # 向``发送微信客户端消息
                     # cmd
                     elif c.who == cmd:
                         if "添加用户" in i.content:
