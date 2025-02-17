@@ -259,10 +259,16 @@ def process_message(chat, message):
     # 命令处理：当消息来自指定命令账号时，执行相应的管理操作
     if chat.who == cmd:
         if "添加用户" in message.content:
-            user_to_add = re.sub("添加用户", "", message.content).strip()
-            add_user(user_to_add)
-            init_wx_listeners()
-            chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
+            try:
+                user_to_add = re.sub("添加用户", "", message.content).strip()
+                add_user(user_to_add)
+                init_wx_listeners()
+                chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
+            except:
+                user_to_add = re.sub("添加用户", "", message.content).strip()
+                remove_user(user_to_add)
+                init_wx_listeners()
+                chat.SendMsg(message.content + ' 失败\n请检查添加的用户是否为好友或者备注是否正确\n当前用户：\n'+"  ".join(config.get('listen_list', [])))
         elif "删除用户" in message.content:
             user_to_remove = re.sub("删除用户", "", message.content).strip()
             remove_user(user_to_remove)
@@ -270,15 +276,33 @@ def process_message(chat, message):
             chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
         elif "当前用户" == message.content:
             chat.SendMsg(message.content + '\n' + "  ".join(config.get('listen_list', [])))
+        elif "当前群" == message.content:
+            chat.SendMsg(message.content + ' '+ config.get('group'))
+        elif "群机器人状态" == message.content:
+            if config.get('group_switch') == 'False':
+                chat.SendMsg(message.content + '为关闭')
+            else:
+                chat.SendMsg(message.content + '为开启')
         elif "更改群为" in message.content:
-            new_group = re.sub("更改群为", "", message.content).strip()
-            set_group(new_group)
-            init_wx_listeners()
-            chat.SendMsg(message.content + ' 完成\n')
+            try:
+                new_group = re.sub("更改群为", "", message.content).strip()
+                set_group(new_group)
+                init_wx_listeners()
+                chat.SendMsg(message.content + ' 完成\n')
+            except:
+                set_group('(暂无监听群)')
+                set_group_switch("False")
+                init_wx_listeners()
+                chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群内\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
         elif message.content == "开启群机器人":
+            try:
                 set_group_switch("True")
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 完成\n')
+            except:
+                set_group_switch("False")
+                init_wx_listeners()
+                chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群内\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
         elif message.content == "关闭群机器人":
             set_group_switch("False")
             init_wx_listeners()
@@ -305,9 +329,11 @@ def process_message(chat, message):
                 '指令列表（发送引号内内容）：\n'
                 '"添加用户***" （将用户***添加进监听列表）\n'
                 '"删除用户***"\n'
+                '"当前群"\n'
                 '"更改群为***" （更改监听的群，只能监听一个群）\n'
                 '"开启群机器人"\n'
                 '"关闭群机器人"\n'
+                '"群机器人状态"\n'
                 '"当前模型" （返回当前模型）\n'
                 '"切换模型1" （切换回复模型为配置中的 model1）\n'
                 '"切换模型2" （切换回复模型为配置中的 model2）\n'
@@ -346,6 +372,9 @@ def main():
     # 加载配置并更新全局变量
     refresh_config()
     
+    set_group_switch("False") # 首次启动关闭群机器人
+    print("首次启动群机器人设置为 关闭")
+
     # 初始化微信监听器
     init_wx_listeners()
     
