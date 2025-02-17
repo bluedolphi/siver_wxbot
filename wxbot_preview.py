@@ -174,6 +174,7 @@ def deepseek_chat(message, model, stream):
         full_response = ""
         for chunk in response:
             chunk_message = chunk.choices[0].delta.content
+            print(chunk_message, end='', flush=True)
             if chunk_message:
                 print(chunk_message, end='', flush=True)
                 full_response += chunk_message
@@ -229,7 +230,7 @@ def process_message(chat, message):
 
     # 检查是否为需要监听的对象：在 listen_list 中，或为指定群聊且群开关开启
     is_monitored = chat.who in listen_list or (
-        chat.who == config.get('group', "") and config.get('group_switch', "False") == "True"
+        chat.who == config.get('group', "") and config.get('group_switch') == "True"
     ) or (
         chat.who == cmd)
     if not is_monitored:
@@ -253,6 +254,7 @@ def process_message(chat, message):
             # 回复消息，并 @ 发送者
             chat.SendMsg(msg=reply, at=message.sender)
             return
+        return
 
     # 命令处理：当消息来自指定命令账号时，执行相应的管理操作
     if chat.who == cmd:
@@ -274,9 +276,9 @@ def process_message(chat, message):
             init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n')
         elif message.content == "开启群机器人":
-            set_group_switch("True")
-            init_wx_listeners()
-            chat.SendMsg(message.content + ' 完成\n')
+                set_group_switch("True")
+                init_wx_listeners()
+                chat.SendMsg(message.content + ' 完成\n')
         elif message.content == "关闭群机器人":
             set_group_switch("False")
             init_wx_listeners()
