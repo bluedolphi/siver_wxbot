@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # 作者：https://siver.top
-# 版本：1.4
-
+# 版本：1.5
+ver = "1.5"         # 当前版本
 import time
 import json
 import re
@@ -17,7 +17,6 @@ from openai import OpenAI
 CONFIG_FILE = 'config.json'
 
 # 全局配置字典及相关变量（将在 refresh_config 中更新）
-ver = "1.4"         # 当前版本
 config = {}
 listen_list = []    # 监听的用户列表
 api_key = ""        # API 密钥
@@ -258,34 +257,34 @@ def process_message(chat, message):
 
     # 命令处理：当消息来自指定命令账号时，执行相应的管理操作
     if chat.who == cmd:
-        if "添加用户" in message.content:
+        if "/添加用户" in message.content:
             try:
-                user_to_add = re.sub("添加用户", "", message.content).strip()
+                user_to_add = re.sub("/添加用户", "", message.content).strip()
                 add_user(user_to_add)
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
             except:
-                user_to_add = re.sub("添加用户", "", message.content).strip()
+                user_to_add = re.sub("/添加用户", "", message.content).strip()
                 remove_user(user_to_add)
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 失败\n请检查添加的用户是否为好友或者备注是否正确\n当前用户：\n'+"  ".join(config.get('listen_list', [])))
-        elif "删除用户" in message.content:
-            user_to_remove = re.sub("删除用户", "", message.content).strip()
+        elif "/删除用户" in message.content:
+            user_to_remove = re.sub("/删除用户", "", message.content).strip()
             remove_user(user_to_remove)
             init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
-        elif "当前用户" == message.content:
+        elif "/当前用户" == message.content:
             chat.SendMsg(message.content + '\n' + "  ".join(config.get('listen_list', [])))
-        elif "当前群" == message.content:
+        elif "/当前群" == message.content:
             chat.SendMsg(message.content + ' '+ config.get('group'))
-        elif "群机器人状态" == message.content:
+        elif "/群机器人状态" == message.content:
             if config.get('group_switch') == 'False':
                 chat.SendMsg(message.content + '为关闭')
             else:
                 chat.SendMsg(message.content + '为开启')
-        elif "更改群为" in message.content:
+        elif "/更改群为" in message.content:
             try:
-                new_group = re.sub("更改群为", "", message.content).strip()
+                new_group = re.sub("/更改群为", "", message.content).strip()
                 set_group(new_group)
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 完成\n')
@@ -294,7 +293,7 @@ def process_message(chat, message):
                 set_group_switch("False")
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群内\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
-        elif message.content == "开启群机器人":
+        elif message.content == "/开启群机器人":
             try:
                 set_group_switch("True")
                 init_wx_listeners()
@@ -303,43 +302,43 @@ def process_message(chat, message):
                 set_group_switch("False")
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群内\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
-        elif message.content == "关闭群机器人":
+        elif message.content == "/关闭群机器人":
             set_group_switch("False")
             init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n')
-        elif message.content == "当前模型":
+        elif message.content == "/当前模型":
             chat.SendMsg(message.content + " " + DS_NOW_MOD)
-        elif message.content == "切换模型1":
+        elif message.content == "/切换模型1":
             # global DS_NOW_MOD
             DS_NOW_MOD = model1
-            chat.SendMsg(message.content + ' 完成\n')
-        elif message.content == "切换模型2":
+            chat.SendMsg(message.content + ' 完成\n当前模型:' + DS_NOW_MOD)
+        elif message.content == "/切换模型2":
             # global DS_NOW_MOD
             DS_NOW_MOD = model2
-            chat.SendMsg(message.content + ' 完成\n')
-        elif message.content == "更新配置":
+            chat.SendMsg(message.content + ' 完成\n当前模型:' + DS_NOW_MOD)
+        elif message.content == "/更新配置":
             refresh_config()
             init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n')
-        elif message.content == "当前版本":
+        elif message.content == "/当前版本":
             global ver
             chat.SendMsg(message.content + 'wxbot_' +ver)
-        elif message.content == "指令":
+        elif message.content == "/指令" or message.content == "指令":
             commands = (
                 '指令列表（发送引号内内容）：\n'
-                '"添加用户***" （将用户***添加进监听列表）\n'
-                '"删除用户***"\n'
-                '"当前群"\n'
-                '"更改群为***" （更改监听的群，只能监听一个群）\n'
-                '"开启群机器人"\n'
-                '"关闭群机器人"\n'
-                '"群机器人状态"\n'
-                '"当前模型" （返回当前模型）\n'
-                '"切换模型1" （切换回复模型为配置中的 model1）\n'
-                '"切换模型2" （切换回复模型为配置中的 model2）\n'
-                '"更新配置" （若在程序运行时手动修改过 config.json，请发送此指令以更新配置）\n'
-                '"当前用户" (返回当前用户列表)\n'
-                '"当前版本" (返回当前版本)'
+                '"/当前用户" (返回当前监听用户列表)\n'
+                '"/添加用户***" （将用户***添加进监听列表）\n'
+                '"/删除用户***"\n'
+                '"/当前群"\n'
+                '"/更改群为***" （更改监听的群，只能监听一个群）\n'
+                '"/开启群机器人"\n'
+                '"/关闭群机器人"\n'
+                '"/群机器人状态"\n'
+                '"/当前模型" （返回当前模型）\n'
+                '"/切换模型1" （切换回复模型为配置中的 model1）\n'
+                '"/切换模型2" （切换回复模型为配置中的 model2）\n'
+                '"/更新配置" （若在程序运行时手动修改过 config.json，请发送此指令以更新配置）\n'
+                '"/当前版本" (返回当前版本)'
             )
             chat.SendMsg(commands)
         else:
