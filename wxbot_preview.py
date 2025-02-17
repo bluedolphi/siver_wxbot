@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # 作者：https://siver.top
-# 版本：1.3
+# 版本：1.4
 
 import time
 import json
