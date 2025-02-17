@@ -17,6 +17,7 @@ from openai import OpenAI
 CONFIG_FILE = 'config.json'
 
 # 全局配置字典及相关变量（将在 refresh_config 中更新）
+ver = "1.4"         # 当前版本
 config = {}
 listen_list = []    # 监听的用户列表
 api_key = ""        # API 密钥
@@ -198,6 +199,9 @@ def init_wx_listeners():
     """
     global wx
     wx = WeChat()
+    # 添加管理员监听
+    wx.AddListenChat(who=cmd)
+    print("添加管理员监听完成")
     # 添加个人用户监听
     for user in listen_list:
         wx.AddListenChat(who=user)
@@ -216,6 +220,7 @@ def process_message(chat, message):
         chat: 消息所属的会话对象（包含 who 等信息）
         message: 消息对象（包含 type, sender, content 等信息）
     """
+    global DS_NOW_MOD
     # 只处理好友消息
     if message.type != 'friend':
         return
@@ -225,7 +230,8 @@ def process_message(chat, message):
     # 检查是否为需要监听的对象：在 listen_list 中，或为指定群聊且群开关开启
     is_monitored = chat.who in listen_list or (
         chat.who == config.get('group', "") and config.get('group_switch', "False") == "True"
-    )
+    ) or (
+        chat.who == cmd)
     if not is_monitored:
         return
 
@@ -260,6 +266,8 @@ def process_message(chat, message):
             remove_user(user_to_remove)
             init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
+        elif "当前用户" == message.content:
+            chat.SendMsg(message.content + '\n' + "  ".join(config.get('listen_list', [])))
         elif "更改群为" in message.content:
             new_group = re.sub("更改群为", "", message.content).strip()
             set_group(new_group)
@@ -276,17 +284,20 @@ def process_message(chat, message):
         elif message.content == "当前模型":
             chat.SendMsg(message.content + " " + DS_NOW_MOD)
         elif message.content == "切换模型1":
-            global DS_NOW_MOD
+            # global DS_NOW_MOD
             DS_NOW_MOD = model1
             chat.SendMsg(message.content + ' 完成\n')
         elif message.content == "切换模型2":
-            global DS_NOW_MOD
+            # global DS_NOW_MOD
             DS_NOW_MOD = model2
             chat.SendMsg(message.content + ' 完成\n')
         elif message.content == "更新配置":
             refresh_config()
             init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n')
+        elif message.content == "当前版本":
+            global ver
+            chat.SendMsg(message.content + 'wxbot_' +ver)
         elif message.content == "指令":
             commands = (
                 '指令列表（发送引号内内容）：\n'
@@ -298,7 +309,9 @@ def process_message(chat, message):
                 '"当前模型" （返回当前模型）\n'
                 '"切换模型1" （切换回复模型为配置中的 model1）\n'
                 '"切换模型2" （切换回复模型为配置中的 model2）\n'
-                '"更新配置" （若在程序运行时手动修改过 config.json，请发送此指令以更新配置）'
+                '"更新配置" （若在程序运行时手动修改过 config.json，请发送此指令以更新配置）\n'
+                '"当前用户" (返回当前用户列表)\n'
+                '"当前版本" (返回当前版本)'
             )
             chat.SendMsg(commands)
         else:
@@ -324,7 +337,8 @@ def process_message(chat, message):
 
 def main():
     # 输出版本信息
-    ver = "1.3"
+    # ver = "1.3"
+    global ver
     print(f"wxbot\n版本: wxbot_{ver}\n作者: https://siver.top")
     
     # 加载配置并更新全局变量
@@ -349,5 +363,5 @@ def main():
         time.sleep(wait_time)
 
 
-if __name__ == '__main__':
-    main()
+
+main()
