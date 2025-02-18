@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # 作者：https://siver.top
-# 版本：1.5
-ver = "1.5"         # 当前版本
+# 版本：1.6
+ver = "1.6"         # 当前版本
 import time
 import json
 import re
@@ -170,12 +170,29 @@ def deepseek_chat(message, model, stream):
 
     # 流式输出处理
     if stream:
+        reasoning_content = ""
+        content = ""
+        for chunk in response:
+            if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content: # 判断是否为思维链
+                chunk_message = chunk.choices[0].delta.reasoning_content # 获取思维链
+                print(chunk_message, end="", flush=True)
+                if chunk_message:
+                    reasoning_content += chunk_message
+            else:
+                chunk_message = chunk.choices[0].delta.content # 获取回复
+                print(chunk_message, end="", flush=True)
+                if chunk_message:
+                    content += chunk_message
+                
+        print("\n")
+        return content.strip()
+
         full_response = ""
         for chunk in response:
             chunk_message = chunk.choices[0].delta.content
             print(chunk_message, end='', flush=True)
             if chunk_message:
-                print(chunk_message, end='', flush=True)
+                # print(chunk_message, end='', flush=True)
                 full_response += chunk_message
         print("\n")
         return full_response.strip()
@@ -225,7 +242,7 @@ def process_message(chat, message):
     if message.type != 'friend':
         return
 
-    print(f"{message.sender} 问：{message.content}")
+    print(f"\n{message.sender} 问：{message.content}")
 
     # 检查是否为需要监听的对象：在 listen_list 中，或为指定群聊且群开关开启
     is_monitored = chat.who in listen_list or (
@@ -297,7 +314,7 @@ def process_message(chat, message):
             try:
                 set_group_switch("True")
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 完成\n')
+                chat.SendMsg(message.content + ' 完成\n' +'当前群：'+config.get('group'))
             except:
                 set_group_switch("False")
                 init_wx_listeners()
@@ -305,7 +322,7 @@ def process_message(chat, message):
         elif message.content == "/关闭群机器人":
             set_group_switch("False")
             init_wx_listeners()
-            chat.SendMsg(message.content + ' 完成\n')
+            chat.SendMsg(message.content + ' 完成\n' +'当前群：'+config.get('group'))
         elif message.content == "/当前模型":
             chat.SendMsg(message.content + " " + DS_NOW_MOD)
         elif message.content == "/切换模型1":
