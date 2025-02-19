@@ -2,7 +2,7 @@
 
 # Siver微信机器人
 
-使用wxauto实现
+使用wxauto实现  作者仓库:https://github.com/cluic/wxauto
 
 最新源码在preview
 
