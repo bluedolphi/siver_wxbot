@@ -2,6 +2,8 @@
 
 # Siver微信机器人
 
+使用wxauto实现
+
 最新源码在preview
 
 在发布版本中有打包好的.exe版本，可直接在windows运行，在windows电脑上登录微信4.0以下的版本，登录你要作为微信机器人的账号，启动wxbot程序即可运行。
