@@ -355,7 +355,8 @@ def process_message(chat, message):
                 '"/切换模型1" （切换回复模型为配置中的 model1）\n'
                 '"/切换模型2" （切换回复模型为配置中的 model2）\n'
                 '"/更新配置" （若在程序运行时手动修改过 config.json，请发送此指令以更新配置）\n'
-                '"/当前版本" (返回当前版本)'
+                '"/当前版本" (返回当前版本)\n'
+                '作者:https://siver.top  若有非法传播请告知'
             )
             chat.SendMsg(commands)
         else:
