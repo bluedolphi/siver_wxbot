@@ -10,6 +10,6 @@
     "model2": "Pro/deepseek-ai/DeepSeek-V3",
     "group": "group",
     "group_switch": "False",
-    "bot_name": "归归~",
+    "bot_name": "DeepSeek.",
     "DeepSeek官方API 网址 / 备用": "you-api / https://api.deepseek.com"
 }
