@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # 作者：https://siver.top
-# 版本：1.6
-ver = "1.6"         # 当前版本
+# 版本：1.7
+ver = "1.7"         # 当前版本
 import time
 import json
 import re
@@ -26,7 +26,8 @@ cmd = ""            # 命令接收账号（管理员）
 group = ""          # 群聊ID
 model1 = ""         # 模型1标识
 model2 = ""         # 模型2标识
-
+model3 = ""         # 模型3标识
+model4 = ""         # 模型4标识
 # 当前使用的模型和 API 客户端
 DS_NOW_MOD = ""
 client = None
@@ -57,7 +58,7 @@ def update_global_config():
     """
     将 config 中的配置项更新到全局变量中，并初始化 API 客户端
     """
-    global listen_list, api_key, base_url, AtMe, cmd, group, model1, model2, DS_NOW_MOD, client
+    global listen_list, api_key, base_url, AtMe, cmd, group, model1, model2, model3, model4, DS_NOW_MOD, client
     listen_list = config.get('listen_list', [])
     api_key = config.get('api_key', "")
     base_url = config.get('base_url', "")
@@ -66,7 +67,8 @@ def update_global_config():
     group = config.get('group', "")
     model1 = config.get('model1', "")
     model2 = config.get('model2', "")
-    
+    model3 = config.get('model3', "")
+    model4 = config.get('model4', "")
     # 默认使用模型1
     DS_NOW_MOD = model1
     # 初始化 OpenAI 客户端
@@ -138,6 +140,9 @@ def set_group_switch(switch_value):
     refresh_config()
     print("群开关设置为", config['group_switch'])
 
+def split_long_text(text, chunk_size=2000):
+    """将长文本分割为指定长度的段落"""
+    return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
 
 # -------------------------------
 # DeepSeek API 调用
@@ -325,13 +330,21 @@ def process_message(chat, message):
             chat.SendMsg(message.content + ' 完成\n' +'当前群：'+config.get('group'))
         elif message.content == "/当前模型":
             chat.SendMsg(message.content + " " + DS_NOW_MOD)
-        elif message.content == "/切换模型1":
+        elif message.content == "/切换模型1": # 1
             # global DS_NOW_MOD
             DS_NOW_MOD = model1
             chat.SendMsg(message.content + ' 完成\n当前模型:' + DS_NOW_MOD)
-        elif message.content == "/切换模型2":
+        elif message.content == "/切换模型2": # 2
             # global DS_NOW_MOD
             DS_NOW_MOD = model2
+            chat.SendMsg(message.content + ' 完成\n当前模型:' + DS_NOW_MOD)
+        elif message.content == "/切换模型3": # 3
+            # global DS_NOW_MOD
+            DS_NOW_MOD = model3
+            chat.SendMsg(message.content + ' 完成\n当前模型:' + DS_NOW_MOD)
+        elif message.content == "/切换模型4": # 4
+            # global DS_NOW_MOD
+            DS_NOW_MOD = model4
             chat.SendMsg(message.content + ' 完成\n当前模型:' + DS_NOW_MOD)
         elif message.content == "/更新配置":
             refresh_config()
@@ -354,6 +367,8 @@ def process_message(chat, message):
                 '"/当前模型" （返回当前模型）\n'
                 '"/切换模型1" （切换回复模型为配置中的 model1）\n'
                 '"/切换模型2" （切换回复模型为配置中的 model2）\n'
+                '"/切换模型3" （切换回复模型为配置中的 model3）\n'
+                '"/切换模型4" （切换回复模型为配置中的 model4）\n'
                 '"/更新配置" （若在程序运行时手动修改过 config.json，请发送此指令以更新配置）\n'
                 '"/当前版本" (返回当前版本)\n'
                 '作者:https://siver.top  若有非法传播请告知'
@@ -367,7 +382,16 @@ def process_message(chat, message):
             except Exception:
                 print(traceback.format_exc())
                 reply = "API返回错误，请稍后再试"
-            chat.SendMsg(reply)
+            
+            if len(reply) >= 2000:
+                segments = split_long_text(reply)
+                # 处理分段后的内容
+                for index, segment in enumerate(segments, 1):
+                    # print(f"第 {index} 段内容（{len(segment)} 字符）: {segment}")
+                    reply_ = segment
+                    chat.SendMsg(reply_)
+            else:
+                chat.SendMsg(reply)
         return
 
     # 普通好友消息：先提示已接收，再调用 AI 接口获取回复
@@ -377,7 +401,16 @@ def process_message(chat, message):
     except Exception:
         print(traceback.format_exc())
         reply = "API返回错误，请稍后再试"
-    chat.SendMsg(reply)
+
+    if len(reply) >= 2000:
+        segments = split_long_text(reply)
+        # 处理分段后的内容
+        for index, segment in enumerate(segments, 1):
+            # print(f"第 {index} 段内容（{len(segment)} 字符）: {segment}")
+            reply_ = segment
+            chat.SendMsg(reply_)
+    else:
+        chat.SendMsg(reply)
 
 
 def main():
@@ -396,7 +429,7 @@ def main():
     init_wx_listeners()
     
     wait_time = 1  # 每1秒检查一次新消息
-    print('siver_wxbot初始化完成，开始监听消息(作者:https://siver.top')
+    print('siver_wxbot初始化完成，开始监听消息(作者:https://siver.top)')
     # 主循环：持续监听并处理消息
     while True:
         try:
