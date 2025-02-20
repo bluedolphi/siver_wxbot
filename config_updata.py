@@ -1,3 +1,9 @@
+'''
+siver_wxbot配置修改器
+作者：https://siver.top
+'''
+
+
 import json
 import os
 import tkinter as tk
