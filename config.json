@@ -1,11 +1,11 @@
 {
     "listen_list": [
-        "归归"
+        
     ],
     "api_key": "you-api",
     "base_url": "https://api.siliconflow.cn/v1",
-    "AtMe": "@Siver. ",
-    "cmd": "归归",
+    "AtMe": "填机器人在群里被@的名字，建议复制粘贴",
+    "cmd": "填管理员备注",
     "model1": "Pro/deepseek-ai/DeepSeek-R1",
     "model2": "Pro/deepseek-ai/DeepSeek-V3",
     "group": "group",
