@@ -4,7 +4,7 @@
 
 使用wxauto实现  作者仓库:https://github.com/cluic/wxauto
 
-最新源码在preview
+最新源码在preview，config_updata.py为siver_wxbot配置查看修改器源码
 
 **config.json文件说明:**
 
