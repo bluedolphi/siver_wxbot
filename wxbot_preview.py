@@ -339,7 +339,7 @@ def process_message(chat, message):
             chat.SendMsg(message.content + ' 完成\n')
         elif message.content == "/当前版本":
             global ver
-            chat.SendMsg(message.content + 'wxbot_' +ver)
+            chat.SendMsg(message.content + 'wxbot_' +ver + '\n作者:https://siver.top')
         elif message.content == "/指令" or message.content == "指令":
             commands = (
                 '指令列表（发送引号内内容）：\n'
@@ -395,7 +395,7 @@ def main():
     init_wx_listeners()
     
     wait_time = 1  # 每1秒检查一次新消息
-    
+    print('siver_wxbot初始化完成，开始监听消息(作者:https://siver.top')
     # 主循环：持续监听并处理消息
     while True:
         try:
