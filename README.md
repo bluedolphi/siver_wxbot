@@ -8,7 +8,7 @@
 
 **config.json文件说明:**
 
-config可通过记事本编辑
+config.json可通过config_updata.py或者打包好的siver_wxbot配置查看修改器.exe编辑
 
 lis列表为监听列表，内容填空([]里面不要有东西)，启动程序后可通过发送消息自动添加
 
