@@ -1,15 +1,17 @@
 {
-    "listen_list": [
-        
-    ],
-    "api_key": "you-api",
+    "鼠标放在？？上查看提示": "鼠标放在？？上查看提示",
+    "listen_list": [],
+    "api_key": "your-api",
     "base_url": "https://api.siliconflow.cn/v1",
-    "AtMe": "填机器人在群里被@的名字，建议复制粘贴",
-    "cmd": "填管理员备注",
+    "AtMe": "@Siver. ",
+    "cmd": "(管理员备注)",
+    "bot_name": "DeepSeek.",
     "model1": "Pro/deepseek-ai/DeepSeek-R1",
     "model2": "Pro/deepseek-ai/DeepSeek-V3",
-    "group": "group",
+    "model3": "deepseek-r1-250120",
+    "model4": "deepseek-v3-241226",
+    "group": "wxbot_test",
     "group_switch": "False",
-    "bot_name": "DeepSeek.",
-    "DeepSeek官方API 网址 / 备用": "you-api / https://api.deepseek.com"
+    "备忘录1": "硅基流动: Pro/deepseek-ai/DeepSeek-R1 / Pro/deepseek-ai/DeepSeek-R1",
+    "备忘录2": "火山引擎: deepseek-r1-250120 / deepseek-v3-241226"
 }
