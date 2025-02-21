@@ -4,6 +4,7 @@
 使用`wxauto`实现 | `wxauto`作者仓库: [cluic/wxauto](https://github.com/cluic/wxauto)  
 最新源码在`wxbot_preview.py`，`config_update.py`为配置工具源码.   
 本作作者:https://siver.top
+
 ---
 
 ## 🛠 首次配置
