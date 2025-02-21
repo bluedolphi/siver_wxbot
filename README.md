@@ -1,6 +1,6 @@
 # Siver微信机器人
 
-[效果展示]()
+[效果展示截图](https://github.com/SiverKing/siver_wxbot/blob/main/img.md)   
 使用`wxauto`实现 | 作者仓库: [cluic/wxauto](https://github.com/cluic/wxauto)  
 最新源码在`wxbot_preview.py`，`config_update.py`为配置工具源码.
 
