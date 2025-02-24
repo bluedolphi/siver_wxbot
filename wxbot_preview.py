@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # Siver微信机器人 siver_wxbot
 # 作者：https://siver.top
-# 版本：1.8.0
-ver = "1.8.0"         # 当前版本
+# 版本：1.8.1
+ver = "1.8.1"         # 当前版本
 import time
 import json
 import re
@@ -34,13 +34,6 @@ prompt = ""         # AI提示词
 # 当前使用的模型和 API 客户端
 DS_NOW_MOD = ""
 client = None
-
-# DS API 模型常量（可根据需要更换）
-DS_R1 = "deepseek-reasoner"
-DS_V3 = "deepseek-chat"
-siliconflow_DS_R1 = "deepseek-ai/DeepSeek-R1"
-siliconflow_DS_V3 = "deepseek-ai/DeepSeek-V3"
-
 
 
 
@@ -375,6 +368,14 @@ def process_message(chat, message):
             # global DS_NOW_MOD
             DS_NOW_MOD = model4
             chat.SendMsg(message.content + ' 完成\n当前模型:' + DS_NOW_MOD)
+        elif message.content == "/当前AI设定":
+            chat.SendMsg('当前AI设定：\n' + config['prompt'])
+        elif "/更改AI设定为" in message.content:
+            new_prompt = re.sub("/更改AI设定为", "", message.content).strip()
+            config['prompt'] = new_prompt
+            save_config()
+            refresh_config()
+            chat.SendMsg('AI设定已更新\n' + config['prompt'])
         elif message.content == "/更新配置":
             refresh_config()
             init_wx_listeners()
@@ -395,10 +396,12 @@ def process_message(chat, message):
                 '"/群机器人状态"\n'
                 '"/当前模型" （返回当前模型）\n'
                 '"/切换模型1" （切换回复模型为配置中的 model1）\n'
-                '"/切换模型2" （切换回复模型为配置中的 model2）\n'
-                '"/切换模型3" （切换回复模型为配置中的 model3）\n'
-                '"/切换模型4" （切换回复模型为配置中的 model4）\n'
-                '"/更新配置" （若在程序运行时手动修改过 config.json，请发送此指令以更新配置）\n'
+                '"/切换模型2"\n'
+                '"/切换模型3"\n'
+                '"/切换模型4"\n'
+                '"/当前AI设定" （返回当前AI设定）\n'
+                '"/更改AI设定为******" （更改AI设定，******为AI设定）\n'
+                '"/更新配置" （若在程序运行时修改过配置，请发送此指令以更新配置）\n'
                 '"/当前版本" (返回当前版本)\n'
                 '作者:https://siver.top  若有非法传播请告知'
             )
