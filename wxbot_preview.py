@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-# siver微信机器人 siver_wxbot
+# Siver微信机器人 siver_wxbot
 # 作者：https://siver.top
-# 版本：1.7
-ver = "1.7"         # 当前版本
+# 版本：1.7.1
+ver = "1.7.1"         # 当前版本
 import time
 import json
 import re
 import traceback
 from wxauto import WeChat
 from openai import OpenAI
+
 
 # -------------------------------
 # 配置相关
@@ -40,6 +41,8 @@ siliconflow_DS_R1 = "deepseek-ai/DeepSeek-R1"
 siliconflow_DS_V3 = "deepseek-ai/DeepSeek-V3"
 
 
+
+
 def load_config():
     """
     从配置文件加载配置，并赋值给全局变量 config
@@ -65,7 +68,7 @@ def update_global_config():
     base_url = config.get('base_url', "")
     AtMe = config.get('AtMe', "")
     cmd = config.get('cmd', "")
-    group = config.get('group', "")
+    group = (config.get('group', ""))
     model1 = config.get('model1', "")
     model2 = config.get('model2', "")
     model3 = config.get('model3', "")
@@ -90,34 +93,34 @@ def save_config():
     将当前的配置写回到配置文件
     """
     try:
-        with open(CONFIG_FILE, 'w', encoding='utf-8') as file:
-            json.dump(config, file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        print("保存配置文件失败:", e)
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as file:  # 写入配置文件
+            json.dump(config, file, ensure_ascii=False, indent=4)  # 保留中文原格式 
+    except Exception as e:  # 异常处理
+        print("保存配置文件失败:", e)  # 显示错误信息   
 
 
 def add_user(name):
     """
     添加用户至监听列表，并更新配置
     """
-    if name not in config.get('listen_list', []):
-        config['listen_list'].append(name)
-        save_config()
-        refresh_config()
-        print("添加后的 Listen List:", config['listen_list'])
+    if name not in config.get('listen_list', []):  # 检查用户是否已存在
+        config['listen_list'].append(name)  # 添加用户到监听列表
+        save_config()  # 保存配置
+        refresh_config()  # 刷新配置
+        print("添加后的 Listen List:", config['listen_list'])  # 显示添加后的列表
     else:
-        print(f"用户 {name} 已在监听列表中")
+        print(f"用户 {name} 已在监听列表中")  # 显示用户已存在  
 
 
 def remove_user(name):
     """
     从监听列表中删除指定用户，并更新配置
     """
-    if name in config.get('listen_list', []):
-        config['listen_list'].remove(name)
-        save_config()
-        refresh_config()
-        print("删除后的 Listen List:", config['listen_list'])
+    if name in config.get('listen_list', []):  # 检查用户是否存在
+        config['listen_list'].remove(name)  # 从列表中删除用户
+        save_config()  # 保存配置
+        refresh_config()  # 刷新配置
+        print("删除后的 Listen List:", config['listen_list'])  # 显示删除后的列表
     else:
         print(f"用户 {name} 不在监听列表中")
 
@@ -126,23 +129,24 @@ def set_group(new_group):
     """
     更改监听的群聊ID，并更新配置
     """
-    config['group'] = new_group
-    save_config()
-    refresh_config()
-    print("群组已更改为", config['group'])
+    config['group'] = new_group  # 更新群聊ID
+    save_config()  # 保存配置
+    refresh_config()  # 刷新配置
+    print("群组已更改为", config['group'])  # 显示更新后的群聊ID
 
 
 def set_group_switch(switch_value):
     """
     设置是否启用群机器人（"True" 或 "False"），并更新配置
     """
-    config['group_switch'] = switch_value
-    save_config()
-    refresh_config()
-    print("群开关设置为", config['group_switch'])
+    config['group_switch'] = switch_value  # 更新群机器人开关状态
+    save_config()  # 保存配置       
+    refresh_config()  # 刷新配置
+    print("群开关设置为", config['group_switch'])  # 显示更新后的开关状态
 
 def split_long_text(text, chunk_size=2000):
-    """将长文本分割为指定长度的段落"""
+    # 使用range生成切割起始位置序列：0, chunk_size, 2*chunk_size...
+    # 通过列表推导式循环截取每个分段
     return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
 
 # -------------------------------
@@ -176,22 +180,22 @@ def deepseek_chat(message, model, stream):
 
     # 流式输出处理
     if stream:
-        reasoning_content = ""
-        content = ""
-        for chunk in response:
+        reasoning_content = ""  # 思维链内容
+        content = ""  # 回复内容    
+        for chunk in response: 
             if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content: # 判断是否为思维链
                 chunk_message = chunk.choices[0].delta.reasoning_content # 获取思维链
-                print(chunk_message, end="", flush=True)
+                print(chunk_message, end="", flush=True)  # 打印思维链
                 if chunk_message:
-                    reasoning_content += chunk_message
+                    reasoning_content += chunk_message  # 累加思维链
             else:
                 chunk_message = chunk.choices[0].delta.content # 获取回复
-                print(chunk_message, end="", flush=True)
-                if chunk_message:
-                    content += chunk_message
+                print(chunk_message, end="", flush=True)  # 打印回复
+                if chunk_message: 
+                    content += chunk_message  # 累加回复
                 
         print("\n")
-        return content.strip()
+        return content.strip()  # 返回回复内容
 
         full_response = ""
         for chunk in response:
@@ -203,9 +207,9 @@ def deepseek_chat(message, model, stream):
         print("\n")
         return full_response.strip()
     else:
-        output = response.choices[0].message.content
-        print(output)
-        return output
+        output = response.choices[0].message.content  # 获取回复内容
+        print(output)  # 打印回复
+        return output  # 返回回复内容
 
 
 # -------------------------------
@@ -229,11 +233,29 @@ def init_wx_listeners():
     for user in listen_list:
         wx.AddListenChat(who=user)
     # 如果群机器人开关开启，则添加群聊监听
-    if config.get('group_switch', "False") == "True":
-        wx.AddListenChat(who=config.get('group', ""))
+    if config.get('group_switch', "") == "True":
+        wx.AddListenChat(who=group)
         print("群组监听设置完成")
+    # print(config.get('group', ""))
     print("监听器初始化完成")
-
+def wx_send_ai(chat, message):
+    # 默认：回复 AI 生成的消息
+    chat.SendMsg("已接收，请耐心等待回答")
+    try:
+        reply = deepseek_chat(message.content, DS_NOW_MOD, stream=True)
+    except Exception:
+        print(traceback.format_exc())
+        reply = "API返回错误，请稍后再试"
+            
+    if len(reply) >= 2000:
+        segments = split_long_text(reply)
+        # 处理分段后的内容
+        for index, segment in enumerate(segments, 1):
+            # print(f"第 {index} 段内容（{len(segment)} 字符）: {segment}")
+            reply_ = segment
+            chat.SendMsg(reply_)
+    else:
+        chat.SendMsg(reply)
 
 def process_message(chat, message):
     """
@@ -252,22 +274,23 @@ def process_message(chat, message):
 
     # 检查是否为需要监听的对象：在 listen_list 中，或为指定群聊且群开关开启
     is_monitored = chat.who in listen_list or (
-        chat.who == config.get('group', "") and config.get('group_switch') == "True"
+        chat.who == group and config.get('group_switch') == "True"
     ) or (
         chat.who == cmd)
     if not is_monitored:
         return
 
     # 如果用户询问“你是谁”，直接回复机器人名称
-    if message.content == '你是谁' or re.sub(AtMe, "", message.content) == '你是谁':
+    if message.content == '你是谁' or re.sub(AtMe, "", message.content).strip() == '你是谁':
         chat.SendMsg('我是' + config.get('bot_name', 'wxbot'))
-        return
+        return 
 
     # 群聊中：只有包含 @ 才回复
-    if chat.who == config.get('group', ""):
+    if chat.who == group:
         if AtMe in message.content:
             # 去除@标识后获取消息内容
-            content_without_at = re.sub(AtMe, "", message.content)
+            content_without_at = re.sub(AtMe, "", message.content).strip()
+            print("群聊消息：",content_without_at)
             try:
                 reply = deepseek_chat(content_without_at, DS_NOW_MOD, stream=True)
             except Exception:
@@ -290,7 +313,7 @@ def process_message(chat, message):
                 user_to_add = re.sub("/添加用户", "", message.content).strip()
                 remove_user(user_to_add)
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 失败\n请检查添加的用户是否为好友或者备注是否正确\n当前用户：\n'+"  ".join(config.get('listen_list', [])))
+                chat.SendMsg(message.content + ' 失败\n请检查添加的用户是否为好友或者备注是否正确或者备注名 昵称中是否含有非法中文字符\n当前用户：\n'+"  ".join(config.get('listen_list', [])))
         elif "/删除用户" in message.content:
             user_to_remove = re.sub("/删除用户", "", message.content).strip()
             remove_user(user_to_remove)
@@ -311,7 +334,8 @@ def process_message(chat, message):
                 set_group(new_group)
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 完成\n')
-            except:
+            except Exception:
+                print(traceback.format_exc())
                 set_group('(暂无监听群)')
                 set_group_switch("False")
                 init_wx_listeners()
@@ -321,10 +345,11 @@ def process_message(chat, message):
                 set_group_switch("True")
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 完成\n' +'当前群：'+config.get('group'))
-            except:
+            except Exception as e:
+                print(traceback.format_exc())
                 set_group_switch("False")
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群内\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
+                chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群或者群名中是否含有非法中文字符\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
         elif message.content == "/关闭群机器人":
             set_group_switch("False")
             init_wx_listeners()
@@ -377,46 +402,15 @@ def process_message(chat, message):
             chat.SendMsg(commands)
         else:
             # 默认：回复 AI 生成的消息
-            chat.SendMsg("已接收，请耐心等待回答")
-            try:
-                reply = deepseek_chat(message.content, DS_NOW_MOD, stream=True)
-            except Exception:
-                print(traceback.format_exc())
-                reply = "API返回错误，请稍后再试"
-            
-            if len(reply) >= 2000:
-                segments = split_long_text(reply)
-                # 处理分段后的内容
-                for index, segment in enumerate(segments, 1):
-                    # print(f"第 {index} 段内容（{len(segment)} 字符）: {segment}")
-                    reply_ = segment
-                    chat.SendMsg(reply_)
-            else:
-                chat.SendMsg(reply)
+            wx_send_ai(chat, message)
         return
 
     # 普通好友消息：先提示已接收，再调用 AI 接口获取回复
-    chat.SendMsg("已接收，请耐心等待回答")
-    try:
-        reply = deepseek_chat(message.content, DS_NOW_MOD, stream=True)
-    except Exception:
-        print(traceback.format_exc())
-        reply = "API返回错误，请稍后再试"
-
-    if len(reply) >= 2000:
-        segments = split_long_text(reply)
-        # 处理分段后的内容
-        for index, segment in enumerate(segments, 1):
-            # print(f"第 {index} 段内容（{len(segment)} 字符）: {segment}")
-            reply_ = segment
-            chat.SendMsg(reply_)
-    else:
-        chat.SendMsg(reply)
+    wx_send_ai(chat, message)
 
 
 def main():
     # 输出版本信息
-    # ver = "1.3"
     global ver
     print(f"wxbot\n版本: wxbot_{ver}\n作者: https://siver.top")
     
@@ -431,6 +425,7 @@ def main():
     
     wait_time = 1  # 每1秒检查一次新消息
     print('siver_wxbot初始化完成，开始监听消息(作者:https://siver.top)')
+    wx.SendMsg('siver_wxbot初始化完成', who=cmd)
     # 主循环：持续监听并处理消息
     while True:
         try:
@@ -440,10 +435,11 @@ def main():
                 for message in messages_dict.get(chat, []):
                     process_message(chat, message)
         except Exception as e:
-            print("处理消息时发生异常:", e)
-            print(traceback.format_exc())
-        time.sleep(wait_time)
+            print("处理消息时发生异常:", e)  # 显示异常信息
+            print(traceback.format_exc())  # 显示完整堆栈跟踪   
+        time.sleep(wait_time)  # 等待1秒
 
 
 
-main()
+main()  # 执行主函数
+
