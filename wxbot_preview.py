@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# siver微信机器人 siver_wxbot
 # 作者：https://siver.top
 # 版本：1.7
 ver = "1.7"         # 当前版本
