@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # Siver微信机器人 siver_wxbot
 # 作者：https://siver.top
-# 版本：1.7.1
-ver = "1.7.1"         # 当前版本
+# 版本：1.8.0
+ver = "1.8.0"         # 当前版本
 import time
 import json
 import re
@@ -30,6 +30,7 @@ model1 = ""         # 模型1标识
 model2 = ""         # 模型2标识
 model3 = ""         # 模型3标识
 model4 = ""         # 模型4标识
+prompt = ""         # AI提示词
 # 当前使用的模型和 API 客户端
 DS_NOW_MOD = ""
 client = None
@@ -62,7 +63,7 @@ def update_global_config():
     """
     将 config 中的配置项更新到全局变量中，并初始化 API 客户端
     """
-    global listen_list, api_key, base_url, AtMe, cmd, group, model1, model2, model3, model4, DS_NOW_MOD, client
+    global listen_list, api_key, base_url, AtMe, cmd, group, model1, model2, model3, model4, prompt, DS_NOW_MOD, client
     listen_list = config.get('listen_list', [])
     api_key = config.get('api_key', "")
     base_url = config.get('base_url', "")
@@ -73,6 +74,7 @@ def update_global_config():
     model2 = config.get('model2', "")
     model3 = config.get('model3', "")
     model4 = config.get('model4', "")
+    prompt = config.get('prompt', "")
     # 默认使用模型1
     DS_NOW_MOD = model1
     # 初始化 OpenAI 客户端
@@ -153,7 +155,7 @@ def split_long_text(text, chunk_size=2000):
 # DeepSeek API 调用
 # -------------------------------
 
-def deepseek_chat(message, model, stream):
+def deepseek_chat(message, model, stream, prompt):
     """
     调用 DeepSeek API 获取对话回复
 
@@ -169,7 +171,7 @@ def deepseek_chat(message, model, stream):
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "You are a helpful assistant"},
+                {"role": "system", "content": prompt},
                 {"role": "user", "content": message},
             ],
             stream=stream
@@ -242,7 +244,7 @@ def wx_send_ai(chat, message):
     # 默认：回复 AI 生成的消息
     chat.SendMsg("已接收，请耐心等待回答")
     try:
-        reply = deepseek_chat(message.content, DS_NOW_MOD, stream=True)
+        reply = deepseek_chat(message.content, DS_NOW_MOD, stream=True, prompt=prompt)
     except Exception:
         print(traceback.format_exc())
         reply = "API返回错误，请稍后再试"
@@ -285,6 +287,7 @@ def process_message(chat, message):
         chat.SendMsg('我是' + config.get('bot_name', 'wxbot'))
         return 
 
+
     # 群聊中：只有包含 @ 才回复
     if chat.who == group:
         if AtMe in message.content:
@@ -292,7 +295,7 @@ def process_message(chat, message):
             content_without_at = re.sub(AtMe, "", message.content).strip()
             print("群聊消息：",content_without_at)
             try:
-                reply = deepseek_chat(content_without_at, DS_NOW_MOD, stream=True)
+                reply = deepseek_chat(content_without_at, DS_NOW_MOD, stream=True, prompt=prompt)
             except Exception:
                 print(traceback.format_exc())
                 reply = "API返回错误，请稍后再试"
@@ -412,7 +415,7 @@ def process_message(chat, message):
 def main():
     # 输出版本信息
     global ver
-    print(f"wxbot\n版本: wxbot_{ver}\n作者: https://siver.top")
+    print(f"wxbot\n版本: wxbot_{ver}\n作者: https://siver.top\n请使用V1.1配置管理器管理配置")
     
     # 加载配置并更新全局变量
     refresh_config()

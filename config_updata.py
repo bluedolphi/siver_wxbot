@@ -57,7 +57,7 @@ class ConfigEditor:
     def __init__(self, root):
         # 主窗口初始化
         self.root = root
-        self.root.title("siver_wxbot 配置管理器")  # 设置窗口标题
+        self.root.title("siver_wxbot 配置管理器V1.1")  # 设置窗口标题
         self.root.geometry("800x800")             # 初始窗口尺寸800x800像素
         
         # 字段说明提示字典
@@ -75,7 +75,8 @@ class ConfigEditor:
             "group": "机器人监听的群组名称",
             "group_switch": "启用/禁用群机器人功能",
             "备忘录1": "随意填写，备忘用",
-            "备忘录2": "随意填写，备忘用"
+            "备忘录2": "随意填写，备忘用",
+            "prompt": "系统提示词，用于定义机器人的基本行为和回复规则",  # 新增提示
         }
         
         # GUI样式初始化
@@ -142,6 +143,8 @@ class ConfigEditor:
         # 动态创建输入组件
         if key == "listen_list":
             widget = self.create_list_field(field_frame, key, value)  # 列表类型字段
+        elif key == "prompt":  # 新增多行输入处理
+            widget = self.create_multiline_field(field_frame, value)
         elif key == "group_switch":
             widget = self.create_switch_field(field_frame, key, value)  # 开关类型字段
         elif "api" in key.lower() or "备忘录" in key.lower():
@@ -259,6 +262,21 @@ class ConfigEditor:
         except IndexError:  # 处理未选中项的情况
             pass  # 静默失败
 
+    def create_multiline_field(self, parent, value):
+        """创建多行文本输入框"""
+        frame = ttk.Frame(parent)
+        
+        # 带滚动条的文本框
+        text = tk.Text(frame, width=50, height=5, wrap=tk.WORD)
+        scroll = ttk.Scrollbar(frame, command=text.yview)
+        text.configure(yscrollcommand=scroll.set)
+        text.insert("1.0", value)
+        
+        text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        frame.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        return text
+
     def load_config(self):
         """加载配置文件"""
         try:
@@ -284,17 +302,19 @@ class ConfigEditor:
                     "listen_list": [],  # 空监听列表
                     "api_key": "your-api",  # 默认API密钥占位符
                     "base_url": "https://api.siliconflow.cn/v1",  # 默认接口地址
-                    "AtMe": "@Siver. ",
-                    "cmd": "(管理员备注)",
-                    "bot_name": "DeepSeek.",
                     "model1": "Pro/deepseek-ai/DeepSeek-R1",
                     "model2": "Pro/deepseek-ai/DeepSeek-V3",
                     "model3": "deepseek-r1-250120",
                     "model4": "deepseek-v3-241226",
+                    "prompt": "你是一个乐于助人的AI",  # 新增提示
+                    "AtMe": "@Siver. ",
+                    "cmd": "(管理员备注)",
+                    "bot_name": "DeepSeek.",
                     "group": "wxbot_test",
                     "group_switch": "False",
                     "备忘录1": "硅基流动: Pro/deepseek-ai/DeepSeek-R1 / Pro/deepseek-ai/DeepSeek-R1",
-                    "备忘录2": "火山引擎: deepseek-r1-250120 / deepseek-v3-241226"
+                    "备忘录2": "火山引擎: deepseek-r1-250120 / deepseek-v3-241226",
+                    
                 }
                 with open(CONFIG_FILE, "w") as f:
                     json.dump(base_config, f, indent=4)  # 美化格式写入
@@ -340,6 +360,8 @@ class ConfigEditor:
                     new_config[key] = "True" if widget.get() else "False"  # 转换布尔值为字符串
                 elif isinstance(widget, ttk.Checkbutton):
                     new_config[key] = widget.instate(["selected"])  # 检查按钮状态
+                elif isinstance(widget, tk.Text):  # 处理多行文本
+                    new_config[key] = widget.get("1.0", tk.END).strip()
                 else:
                     new_config[key] = widget.get()  # 获取输入框内容
 
