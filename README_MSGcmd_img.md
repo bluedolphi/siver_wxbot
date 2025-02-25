@@ -1,5 +1,5 @@
 # 消息指令使用示范
-## `/指令` `指令` 返回指令列表：
+## `/指令` `指令`:返回指令列表
 ![7](https://github.com/user-attachments/assets/24227aff-a4e7-44d6-9a04-c8c3286c76a1)
 
 
