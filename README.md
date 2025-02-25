@@ -1,6 +1,6 @@
 # Siver微信机器人
 
-[效果展示截图](./README_img.md)   
+[点击查看效果展示截图](./README_img.md)   
 使用`wxauto`实现 | `wxauto`作者仓库: [cluic/wxauto](https://github.com/cluic/wxauto)  
 最新源码在`wxbot_preview.py`，`config_update.py`为配置工具源码.   
 本作作者:https://siver.top
@@ -33,7 +33,7 @@
    - 配置群组机器人开关
    - 修改模型参数等
 
-**[消息指令示例](./README_MSGcmd_img.md)**
+**[点击查看消息指令示例](./README_MSGcmd_img.md)**
 
 
 ---
