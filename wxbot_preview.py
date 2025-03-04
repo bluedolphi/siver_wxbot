@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 # Siver微信机器人 siver_wxbot
 # 作者：https://siver.top
-# 版本：1.8.1
-ver = "1.8.1"         # 当前版本
+# 版本：1.8.2 # 更新为wxauto plus版    可以删除监听窗口
+
+ver = "1.8.2"         # 当前版本
 import time
 import json
 import re
 import traceback
-from wxauto import WeChat
 from openai import OpenAI
-
+# from wxauto import WeChat
+try:
+    from wxautox import WeChat
+    is_wxautox = True # 是否为wxautox 即plus版本
+    print("当前调用wxautox plus版")
+except:
+    from wxauto import WeChat
+    is_wxautox = False # 是否为wxautox 即plus版本
+    print("当前调用wxauto 普通版")
 
 # -------------------------------
 # 配置相关
@@ -312,8 +320,11 @@ def process_message(chat, message):
                 chat.SendMsg(message.content + ' 失败\n请检查添加的用户是否为好友或者备注是否正确或者备注名 昵称中是否含有非法中文字符\n当前用户：\n'+"  ".join(config.get('listen_list', [])))
         elif "/删除用户" in message.content:
             user_to_remove = re.sub("/删除用户", "", message.content).strip()
+            if is_wxautox: # 如果是wxautox则删除监听窗口
+                wx.RemoveListenChat(user_to_remove) # 删除监听窗口
+
             remove_user(user_to_remove)
-            init_wx_listeners()
+            # init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
         elif "/当前用户" == message.content:
             chat.SendMsg(message.content + '\n' + "  ".join(config.get('listen_list', [])))
@@ -327,6 +338,8 @@ def process_message(chat, message):
         elif "/更改群为" in message.content:
             try:
                 new_group = re.sub("/更改群为", "", message.content).strip()
+                if is_wxautox: # 如果是wxautox则删除群组监听窗口
+                    wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
                 set_group(new_group)
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 完成\n')
@@ -348,7 +361,9 @@ def process_message(chat, message):
                 chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群或者群名中是否含有非法中文字符\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
         elif message.content == "/关闭群机器人":
             set_group_switch("False")
-            init_wx_listeners()
+            if is_wxautox: # 如果是wxautox则删除群组监听窗口
+                wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
+            # init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n' +'当前群：'+config.get('group'))
         elif message.content == "/当前模型":
             chat.SendMsg(message.content + " " + DS_NOW_MOD)
@@ -370,8 +385,11 @@ def process_message(chat, message):
             chat.SendMsg(message.content + ' 完成\n当前模型:' + DS_NOW_MOD)
         elif message.content == "/当前AI设定":
             chat.SendMsg('当前AI设定：\n' + config['prompt'])
-        elif "/更改AI设定为" in message.content:
-            new_prompt = re.sub("/更改AI设定为", "", message.content).strip()
+        elif "/更改AI设定为" in message.content or "/更改ai设定为" in message.content:
+            if "AI设定" in message.content:
+                new_prompt = re.sub("/更改AI设定为", "", message.content).strip()
+            else:
+                new_prompt = re.sub("/更改ai设定为", "", message.content).strip()
             config['prompt'] = new_prompt
             save_config()
             refresh_config()
