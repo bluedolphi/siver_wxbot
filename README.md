@@ -2,8 +2,8 @@
 
 [点击查看效果展示截图](./README_img.md)   
 使用`wxauto`实现 | `wxauto`作者仓库: [cluic/wxauto](https://github.com/cluic/wxauto)  
-如需使用源码中的`wxautox`即`wxauto plus`请前往wxauto仓库寻找wxauto作者购买，不购买可到release中下载我打包好的exe来体验plus版 
-最新源码在`wxbot_preview.py`，`config_update.py`为配置工具源码.   
+如需使用源码中的`wxautox`即`wxauto plus`请前往wxauto仓库寻找wxauto作者购买，不购买可到release中下载我打包好的exe来体验plus版  
+本作最新源码在`wxbot_preview.py`，`config_update.py`为配置工具源码.   
 本作作者:https://siver.top
 
 ---
