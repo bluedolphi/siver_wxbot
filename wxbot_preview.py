@@ -320,8 +320,8 @@ def process_message(chat, message):
                 chat.SendMsg(message.content + ' 失败\n请检查添加的用户是否为好友或者备注是否正确或者备注名 昵称中是否含有非法中文字符\n当前用户：\n'+"  ".join(config.get('listen_list', [])))
         elif "/删除用户" in message.content:
             user_to_remove = re.sub("/删除用户", "", message.content).strip()
-            if is_wxautox: # 如果是wxautox则删除监听窗口
-                wx.RemoveListenChat(user_to_remove) # 删除监听窗口
+            # if is_wxautox: # 如果是wxautox则删除监听窗口
+            wx.RemoveListenChat(user_to_remove) # 删除监听窗口
 
             remove_user(user_to_remove)
             # init_wx_listeners()
@@ -338,8 +338,8 @@ def process_message(chat, message):
         elif "/更改群为" in message.content:
             try:
                 new_group = re.sub("/更改群为", "", message.content).strip()
-                if is_wxautox: # 如果是wxautox则删除群组监听窗口
-                    wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
+                # if is_wxautox: # 如果是wxautox则删除群组监听窗口
+                wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
                 set_group(new_group)
                 init_wx_listeners()
                 chat.SendMsg(message.content + ' 完成\n')
@@ -361,8 +361,8 @@ def process_message(chat, message):
                 chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群或者群名中是否含有非法中文字符\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
         elif message.content == "/关闭群机器人":
             set_group_switch("False")
-            if is_wxautox: # 如果是wxautox则删除群组监听窗口
-                wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
+            # if is_wxautox: # 如果是wxautox则删除群组监听窗口
+            wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
             # init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n' +'当前群：'+config.get('group'))
         elif message.content == "/当前模型":
