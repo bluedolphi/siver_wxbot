@@ -11,7 +11,7 @@ import traceback
 from openai import OpenAI
 # from wxauto import WeChat
 try:
-    from wxautox import WeChat
+    from wxautox import WeChat # plus版需要找wxauto作者购买 https://github.com/cluic/wxauto
     is_wxautox = True # 是否为wxautox 即plus版本
     print("当前调用wxautox plus版")
 except:
