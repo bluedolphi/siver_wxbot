@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 # Siver微信机器人 siver_wxbot
 # 作者：https://siver.top
-# 版本：1.8.2 # 更新为wxauto plus版    可以删除监听窗口
+# 版本：1.8.3 # 日志：新增初始化检查，新增微信窗口检查，新增邮件发送
 
-ver = "1.8.2"         # 当前版本
+ver = "1.8.3"         # 当前版本
 import time
 import json
 import re
 import traceback
+import email_send
 from openai import OpenAI
+import win32gui
 # from wxauto import WeChat
 try:
     from wxautox import WeChat # plus版需要找wxauto作者购买 https://github.com/cluic/wxauto
@@ -43,7 +45,9 @@ prompt = ""         # AI提示词
 DS_NOW_MOD = ""
 client = None
 
-
+def check_wechat_window():
+    """检测微信是否运行"""
+    return wx.IsOnline()
 
 def load_config():
     """
@@ -230,11 +234,11 @@ def init_wx_listeners():
     global wx
     wx = WeChat()
     # 添加管理员监听
-    wx.AddListenChat(who=cmd)
+    wx.AddListenChat(who=cmd, savepic=True)
     print("添加管理员监听完成")
     # 添加个人用户监听
     for user in listen_list:
-        wx.AddListenChat(who=user)
+        wx.AddListenChat(who=user, savepic=True)
     # 如果群机器人开关开启，则添加群聊监听
     if config.get('group_switch', "") == "True":
         wx.AddListenChat(who=group)
@@ -274,6 +278,8 @@ def process_message(chat, message):
         return
 
     print(f"\n{message.sender} 问：{message.content}")
+    print(message.info) # 原始消息
+
 
     # 检查是否为需要监听的对象：在 listen_list 中，或为指定群聊且群开关开启
     is_monitored = chat.who in listen_list or (
@@ -444,15 +450,33 @@ def main():
     set_group_switch("False") # 首次启动关闭群机器人
     print("首次启动群机器人设置为 关闭")
 
-    # 初始化微信监听器
-    init_wx_listeners()
+    try:
+        # 初始化微信监听器
+        init_wx_listeners()
+    except Exception as e:
+        print(traceback.format_exc())
+        print("初始化微信监听器失败，请检查微信是否启动登录正确")
+        while True:
+            time.sleep(100)
+
     
     wait_time = 1  # 每1秒检查一次新消息
+    check_interval = 10  # 每10次循环检查一次进程状态
+    check_counter = 0
     print('siver_wxbot初始化完成，开始监听消息(作者:https://siver.top)')
     wx.SendMsg('siver_wxbot初始化完成', who=cmd)
     # 主循环：持续监听并处理消息
     while True:
         try:
+            check_counter += 1
+            if check_counter >= check_interval:
+                if not check_wechat_window():
+                    print("微信窗口未找到，请检查微信是否启动")
+                    email_send.send_email(subject="wxbot监听出错！！微信可能已被弹出登录！！在线检查失败！！", content='错误信息\n'+traceback.format_exc())
+                    while True:
+                        time.sleep(100)
+                check_counter = 0
+
             messages_dict = wx.GetListenMessage()
             # 遍历所有监听的会话
             for chat in messages_dict:
@@ -461,9 +485,12 @@ def main():
         except Exception as e:
             print("处理消息时发生异常:", e)  # 显示异常信息
             print(traceback.format_exc())  # 显示完整堆栈跟踪   
+            email_send.send_email(subject="wxbot监听出错！！微信可能已被弹出登录！！处理监听失败！！", content='错误信息\n'+traceback.format_exc())
+            while True:
+                time.sleep(100)
         time.sleep(wait_time)  # 等待1秒
 
 
-
-main()  # 执行主函数
+if __name__ == "__main__":
+    main()  # 执行主函数
 
