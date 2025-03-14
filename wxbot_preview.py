@@ -4,7 +4,7 @@
 # 版本：1.8.4 # 
 
 ver = "V1.8.4"         # 当前版本
-ver_log = "日志：自动绑定@自己的名字 无需配置 引入错误中断"    # 日志
+ver_log = "日志：1.自动绑定@自己的名字 无需配置 2.引入错误中断"    # 日志
 import time
 import json
 import re
@@ -84,7 +84,7 @@ def update_global_config():
     listen_list = config.get('listen_list', [])
     api_key = config.get('api_key', "")
     base_url = config.get('base_url', "")
-    AtMe = "@"+wx.nickname+" " # 绑定AtMe
+    # AtMe = "@"+wx.nickname+" " # 绑定AtMe
     cmd = config.get('cmd', "")
     group = (config.get('group', ""))
     model1 = config.get('model1', "")
@@ -243,8 +243,9 @@ def init_wx_listeners():
     """
     初始化微信监听器，根据配置添加监听用户和群聊
     """
-    global wx
+    global wx, AtMe
     wx = WeChat()
+    AtMe = "@"+wx.nickname+" " # 绑定AtMe
     # 添加管理员监听
     wx.AddListenChat(who=cmd, savepic=True)
     print("添加管理员监听完成")
