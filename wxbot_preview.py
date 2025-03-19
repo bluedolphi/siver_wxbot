@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # Siver微信机器人 siver_wxbot
 # 作者：https://siver.top
-# 版本：1.8.4 # 
+# 版本：1.9.0 # 
 
-ver = "V1.8.4"         # 当前版本
-ver_log = "日志：1.自动绑定@自己的名字 无需配置 2.引入错误中断"    # 日志
+ver = "V1.9.0"         # 当前版本
+ver_log = "日志：可以监听多个群组 配置文件部分字段改中文 优化程序性能"    # 日志
 import time
 import json
 import re
@@ -12,6 +12,7 @@ import traceback
 import email_send
 from openai import OpenAI
 import win32gui
+from datetime import datetime, timedelta
 # from wxauto import WeChat
 try:
     from wxautox import WeChat # plus版需要找wxauto作者购买 https://github.com/cluic/wxauto
@@ -35,8 +36,10 @@ listen_list = []    # 监听的用户列表
 api_key = ""        # API 密钥
 base_url = ""       # API 基础 URL
 AtMe = ""           # 机器人@的标识
+bot_name = ""       # 机器人名字
 cmd = ""            # 命令接收账号（管理员）
-group = ""          # 群聊ID
+group = []          # 群聊ID
+group_switch = None # 群机器人开关
 model1 = ""         # 模型1标识
 model2 = ""         # 模型2标识
 model3 = ""         # 模型3标识
@@ -56,6 +59,12 @@ def is_err(id, err="无"):
     while True:
         print("程序已保护现场，检查后请重启程序")
         time.sleep(100)
+def now_time():
+    # 获取当前时间
+    now = datetime.now()
+    # 格式化时间为 YYYY/MM/DD HH:mm:ss
+    formatted_time = now.strftime("%Y/%m/%d %H:%M:%S ")
+    return formatted_time
 
 def check_wechat_window():
     """检测微信是否运行"""
@@ -80,13 +89,15 @@ def update_global_config():
     """
     将 config 中的配置项更新到全局变量中，并初始化 API 客户端
     """
-    global listen_list, api_key, base_url, AtMe, cmd, group, model1, model2, model3, model4, prompt, DS_NOW_MOD, client
-    listen_list = config.get('listen_list', [])
+    global listen_list, api_key, base_url, AtMe, cmd, group, model1, model2, model3, model4, prompt, DS_NOW_MOD, client, group_switch, bot_name
+    listen_list = config.get('监听用户列表', [])
     api_key = config.get('api_key', "")
     base_url = config.get('base_url', "")
     # AtMe = "@"+wx.nickname+" " # 绑定AtMe
-    cmd = config.get('cmd', "")
-    group = (config.get('group', ""))
+    cmd = config.get('管理员', "")
+    group = (config.get('监听群组列表', ""))
+    group_switch = config.get('群机器人开关', '')
+    bot_name = config.get("机器人名字", '')
     model1 = config.get('model1', "")
     model2 = config.get('model2', "")
     model3 = config.get('model3', "")
@@ -96,7 +107,7 @@ def update_global_config():
     DS_NOW_MOD = model1
     # 初始化 OpenAI 客户端
     client = OpenAI(api_key=api_key, base_url=base_url)
-    print("全局配置更新完成")
+    print(now_time()+"全局配置更新完成")
 
 
 def refresh_config():
@@ -122,11 +133,11 @@ def add_user(name):
     """
     添加用户至监听列表，并更新配置
     """
-    if name not in config.get('listen_list', []):  # 检查用户是否已存在
-        config['listen_list'].append(name)  # 添加用户到监听列表
+    if name not in config.get('监听用户列表', []):  # 检查用户是否已存在
+        config['监听用户列表'].append(name)  # 添加用户到监听列表
         save_config()  # 保存配置
         refresh_config()  # 刷新配置
-        print("添加后的 Listen List:", config['listen_list'])  # 显示添加后的列表
+        print("添加后的  监听用户列表:", config['监听用户列表'])  # 显示添加后的列表
     else:
         print(f"用户 {name} 已在监听列表中")  # 显示用户已存在  
 
@@ -135,11 +146,11 @@ def remove_user(name):
     """
     从监听列表中删除指定用户，并更新配置
     """
-    if name in config.get('listen_list', []):  # 检查用户是否存在
-        config['listen_list'].remove(name)  # 从列表中删除用户
+    if name in listen_list:  # 检查用户是否存在
+        config['监听用户列表'].remove(name)  # 从列表中删除用户
         save_config()  # 保存配置
         refresh_config()  # 刷新配置
-        print("删除后的 Listen List:", config['listen_list'])  # 显示删除后的列表
+        print("删除后的 监听用户列表:", config['监听用户列表'])  # 显示删除后的列表
     else:
         print(f"用户 {name} 不在监听列表中")
 
@@ -148,20 +159,52 @@ def set_group(new_group):
     """
     更改监听的群聊ID，并更新配置
     """
-    config['group'] = new_group  # 更新群聊ID
+    config['监听群组列表'] = new_group  # 更新群聊ID
     save_config()  # 保存配置
     refresh_config()  # 刷新配置
-    print("群组已更改为", config['group'])  # 显示更新后的群聊ID
+    print("群组已更改为", config['监听群组列表'])  # 显示更新后的群聊ID
 
+def add_group(name):
+    """
+    添加群组至监听列表，并更新配置
+    """
+    if name not in config.get('监听群组列表', []):  # 检查用户是否已存在
+        config['监听群组列表'].append(name)  # 添加用户到监听列表
+        save_config()  # 保存配置
+        refresh_config()  # 刷新配置
+        print("添加后的  监听群组列表:", config['监听群组列表'])  # 显示添加后的列表
+    else:
+        print(f"群组 {name} 已在监听列表中")  # 显示用户已存在  
+def remove_group(name):
+    """
+    删除群组从监听列表，并更新配置
+    """
+    if name in config.get('监听群组列表', []):  # 检查用户是否存在
+        config['监听群组列表'].remove(name)  # 从列表中删除用户
+        save_config()  # 保存配置
+        refresh_config()  # 刷新配置
+        print("删除后的 监听群组列表:", config['监听群组列表'])  # 显示删除后的列表
+    else:
+        print(f"群组 {name} 不在监听列表中")
 
 def set_group_switch(switch_value):
     """
     设置是否启用群机器人（"True" 或 "False"），并更新配置
     """
-    config['group_switch'] = switch_value  # 更新群机器人开关状态
+    config['群机器人开关'] = switch_value  # 更新群机器人开关状态
     save_config()  # 保存配置       
     refresh_config()  # 刷新配置
-    print("群开关设置为", config['group_switch'])  # 显示更新后的开关状态
+    print("群开关设置为", config['群机器人开关'])  # 显示更新后的开关状态
+def set_config(id, new_content):
+    """
+    更改配置
+    id:字段
+    new_content:新的字段值
+    """
+    config[id] = new_content  # 更新
+    save_config()  # 保存配置
+    refresh_config()  # 刷新配置
+    print(now_time()+id+"已更改为:", config[id])  # 显示更新后的
 
 def split_long_text(text, chunk_size=2000):
     # 使用range生成切割起始位置序列：0, chunk_size, 2*chunk_size...
@@ -253,14 +296,15 @@ def init_wx_listeners():
     for user in listen_list:
         wx.AddListenChat(who=user, savepic=True)
     # 如果群机器人开关开启，则添加群聊监听
-    if config.get('group_switch', "") == "True":
-        wx.AddListenChat(who=group)
+    if group_switch == "True":
+        for user in group:
+            wx.AddListenChat(who=user)
         print("群组监听设置完成")
     # print(config.get('group', ""))
     print("监听器初始化完成")
 def wx_send_ai(chat, message):
     # 默认：回复 AI 生成的消息
-    chat.SendMsg("已接收，请耐心等待回答")
+    # chat.SendMsg("已接收，请耐心等待回答")
     try:
         reply = deepseek_chat(message.content, DS_NOW_MOD, stream=True, prompt=prompt)
     except Exception:
@@ -290,13 +334,13 @@ def process_message(chat, message):
     if message.type != 'friend':
         return
 
-    print(f"\n{message.sender} 问：{message.content}")
+    print(now_time()+f"\n{chat.who} 窗口 {message.sender} 说：{message.content}")
     # print(message.info) # 原始消息
 
 
     # 检查是否为需要监听的对象：在 listen_list 中，或为指定群聊且群开关开启
     is_monitored = chat.who in listen_list or (
-        chat.who == group and config.get('group_switch') == "True"
+        chat.who in group and group_switch == "True"
     ) or (
         chat.who == cmd)
     if not is_monitored:
@@ -304,21 +348,21 @@ def process_message(chat, message):
 
     # 如果用户询问“你是谁”，直接回复机器人名称
     if message.content == '你是谁' or re.sub(AtMe, "", message.content).strip() == '你是谁':
-        chat.SendMsg('我是' + config.get('bot_name', 'wxbot'))
+        chat.SendMsg('我是' + bot_name)
         return 
 
 
     # 群聊中：只有包含 @ 才回复
-    if chat.who == group:
+    if chat.who in group:
         if AtMe in message.content:
             # 去除@标识后获取消息内容
             content_without_at = re.sub(AtMe, "", message.content).strip()
-            print("群聊消息：",content_without_at)
+            print(now_time()+f"群组 {chat.who} 消息：",content_without_at)
             try:
                 reply = deepseek_chat(content_without_at, DS_NOW_MOD, stream=True, prompt=prompt)
             except Exception:
                 print(traceback.format_exc())
-                reply = "API返回错误，请稍后再试"
+                reply = "请稍后再试"
             # 回复消息，并 @ 发送者
             chat.SendMsg(msg=reply, at=message.sender)
             return
@@ -331,59 +375,64 @@ def process_message(chat, message):
                 user_to_add = re.sub("/添加用户", "", message.content).strip()
                 add_user(user_to_add)
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
+                chat.SendMsg(message.content + ' 完成\n' + ", ".join(listen_list))
             except:
                 user_to_add = re.sub("/添加用户", "", message.content).strip()
                 remove_user(user_to_add)
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 失败\n请检查添加的用户是否为好友或者备注是否正确或者备注名 昵称中是否含有非法中文字符\n当前用户：\n'+"  ".join(config.get('listen_list', [])))
+                chat.SendMsg(message.content + ' 失败\n请检查添加的用户是否为好友或者备注是否正确或者备注名 昵称中是否含有非法中文字符\n当前用户：\n'+", ".join(listen_list))
         elif "/删除用户" in message.content:
             user_to_remove = re.sub("/删除用户", "", message.content).strip()
             # if is_wxautox: # 如果是wxautox则删除监听窗口
             wx.RemoveListenChat(user_to_remove) # 删除监听窗口
-            
             remove_user(user_to_remove)
             # init_wx_listeners()
-            chat.SendMsg(message.content + ' 完成\n' + "  ".join(config.get('listen_list', [])))
+            chat.SendMsg(message.content + ' 完成\n' + ", ".join(listen_list))
         elif "/当前用户" == message.content:
-            chat.SendMsg(message.content + '\n' + "  ".join(config.get('listen_list', [])))
+            chat.SendMsg(message.content + '\n' + ", ".join(listen_list))
         elif "/当前群" == message.content:
-            chat.SendMsg(message.content + ' '+ config.get('group'))
+            chat.SendMsg(message.content + '\n'+ ", ".join(group))
         elif "/群机器人状态" == message.content:
-            if config.get('group_switch') == 'False':
+            if group_switch == 'False':
                 chat.SendMsg(message.content + '为关闭')
             else:
                 chat.SendMsg(message.content + '为开启')
-        elif "/更改群为" in message.content:
+        elif "/添加群" in message.content:
             try:
-                new_group = re.sub("/更改群为", "", message.content).strip()
+                new_group = re.sub("/添加群", "", message.content).strip()
                 # if is_wxautox: # 如果是wxautox则删除群组监听窗口
-                wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
-                set_group(new_group)
+                # wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
+                add_group(new_group)
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 完成\n')
+                chat.SendMsg(message.content + ' 完成\n' + ", ".join(group))
             except Exception:
                 print(traceback.format_exc())
-                set_group('(暂无监听群)')
+                remove_group(new_group)
                 set_group_switch("False")
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群内\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
+                chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群内\n当前群:\n' + ", ".join(group) + '\n当前群机器人状态:'+group_switch)
+        elif "/删除群" in message.content:
+            group_to_remove = re.sub("/删除群", "", message.content).strip()
+            wx.RemoveListenChat(group_to_remove) # 删除监听窗口
+            remove_group(group_to_remove) # 在配置中删除
+            chat.SendMsg(message.content + ' 完成\n' + ", ".join(group))
         elif message.content == "/开启群机器人":
             try:
                 set_group_switch("True")
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 完成\n' +'当前群：'+config.get('group'))
+                chat.SendMsg(message.content + ' 完成\n' +'当前群：\n'+", ".join(group))
             except Exception as e:
                 print(traceback.format_exc())
                 set_group_switch("False")
                 init_wx_listeners()
-                chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群或者群名中是否含有非法中文字符\n当前配置群名称:'+config.get('group')+'\n当前群机器人状态:'+config.get('group_switch'))
+                chat.SendMsg(message.content + ' 失败\n请重新配置群名称或者检查机器人号是否在群或者群名中是否含有非法中文字符\n当前群:'+ ", ".join(group) +'\n当前群机器人状态:'+group_switch)
         elif message.content == "/关闭群机器人":
             set_group_switch("False")
             # if is_wxautox: # 如果是wxautox则删除群组监听窗口
-            wx.RemoveListenChat(config.get('group')) # 删除群组监听窗口
+            for user in group:
+                wx.RemoveListenChat(user) # 删除群组监听窗口
             # init_wx_listeners()
-            chat.SendMsg(message.content + ' 完成\n' +'当前群：'+config.get('group'))
+            chat.SendMsg(message.content + ' 完成\n' +'当前群：\n' + ", ".join(group))
         elif message.content == "/当前模型":
             chat.SendMsg(message.content + " " + DS_NOW_MOD)
         elif message.content == "/切换模型1": # 1
@@ -422,24 +471,25 @@ def process_message(chat, message):
             chat.SendMsg(message.content + 'wxbot_' + ver + '\n' + ver_log + '\n作者:https://siver.top')
         elif message.content == "/指令" or message.content == "指令":
             commands = (
-                '指令列表（发送引号内内容）：\n'
-                '"/当前用户" (返回当前监听用户列表)\n'
-                '"/添加用户***" （将用户***添加进监听列表）\n'
-                '"/删除用户***"\n'
-                '"/当前群"\n'
-                '"/更改群为***" （更改监听的群，只能监听一个群）\n'
-                '"/开启群机器人"\n'
-                '"/关闭群机器人"\n'
-                '"/群机器人状态"\n'
-                '"/当前模型" （返回当前模型）\n'
-                '"/切换模型1" （切换回复模型为配置中的 model1）\n'
-                '"/切换模型2"\n'
-                '"/切换模型3"\n'
-                '"/切换模型4"\n'
-                '"/当前AI设定" （返回当前AI设定）\n'
-                '"/更改AI设定为******" （更改AI设定，******为AI设定）\n'
-                '"/更新配置" （若在程序运行时修改过配置，请发送此指令以更新配置）\n'
-                '"/当前版本" (返回当前版本)\n'
+                '指令列表[发送中括号里内容]：\n'
+                '[/当前用户] (返回当前监听用户列表)\n'
+                '[/添加用户***] （将用户***添加进监听列表）\n'
+                '[/删除用户***]\n'
+                '[/当前群]\n'
+                '[/添加群***] \n'
+                '[/删除群***] \n'
+                '[/开启群机器人]\n'
+                '[/关闭群机器人]\n'
+                '[/群机器人状态]\n'
+                '[/当前模型] （返回当前模型）\n'
+                '[/切换模型1] （切换回复模型为配置中的 model1）\n'
+                '[/切换模型2]\n'
+                '[/切换模型3]\n'
+                '[/切换模型4]\n'
+                '[/当前AI设定] （返回当前AI设定）\n'
+                '[/更改AI设定为***] （更改AI设定，***为AI设定）\n'
+                '[/更新配置] （若在程序运行时修改过配置，请发送此指令以更新配置）\n'
+                '[/当前版本] (返回当前版本)\n'
                 '作者:https://siver.top  若有非法传播请告知'
             )
             chat.SendMsg(commands)
@@ -476,7 +526,7 @@ def main():
     wait_time = 1  # 每1秒检查一次新消息
     check_interval = 10  # 每10次循环检查一次进程状态
     check_counter = 0
-    print('siver_wxbot初始化完成，开始监听消息(作者:https://siver.top)')
+    print(now_time()+'siver_wxbot初始化完成，开始监听消息(作者:https://siver.top)')
     wx.SendMsg('siver_wxbot初始化完成', who=cmd)
     # 主循环：持续监听并处理消息
     while True:
@@ -490,9 +540,9 @@ def main():
                 except Exception as e:
                     is_err(wx.nickname+" wxbot监听出错！！微信可能已被弹出登录！！在线检查失败！！", e)
                 check_counter = 0
-
-            messages_dict = wx.GetListenMessage()
+            
             # 遍历所有监听的会话
+            messages_dict = wx.GetListenMessage()
             for chat in messages_dict:
                 for message in messages_dict.get(chat, []):
                     process_message(chat, message)
