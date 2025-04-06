@@ -3,14 +3,14 @@
 [点击查看效果展示截图](./README_img.md)   
 使用`wxauto`实现 | `wxauto`作者仓库: [cluic/wxauto](https://github.com/cluic/wxauto)  
 如需使用源码中的`wxautox`即`wxauto plus`请前往wxauto仓库寻找wxauto作者购买，不购买可到release中下载我打包好的exe来体验plus版  
-本作最新源码在`wxbot_preview.py`，`config_update.py`为配置管理工具源码.   
+本作控制微信的最新源码在`wxbot_preview.py`，`main.py`为主程序UI界面加机器人线程控制源码.   
 本作作者:https://siver.top
 
 ---
 
 ## 🛠 V1.9.0及以后版本首次配置
 ⚠️仅支持Windows微信，微信版本`3.9.11.17`或者`3.9.11.xxx`任意版本均可⚠️  
-V1.9.0往后版本只有一个 `wxbot_V*.*.*.exe` 里面集成了配置更改与开关机器人，如果要自行打包或者运行`.py`，打包或者运行`config_updata.py`文件即可
+V1.9.0往后版本只有一个 `wxbot_V*.*.*.exe` 里面集成了配置更改与开关机器人，如果要自行打包或者运行`.py`，打包或者运行`main.py`文件即可
 1. 运行 **`wxbot_V1.9.0.exe`** 或更高版本
 2. 若提示无配置文件，按指引创建新配置
 3. **必填字段**（按提示填写）：
