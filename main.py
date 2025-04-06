@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
+"""main.py
 siver_wxbot 配置管理器 V2.0
 说明：
     本脚本用于加载和编辑新版配置文件（config.json），同时集成了机器人控制功能，
