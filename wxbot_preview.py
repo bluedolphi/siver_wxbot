@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # Siver微信机器人 siver_wxbot
 # 作者：https://siver.top
-# 版本：1.9.0 # 
+# 版本：1.9.1 # 
 
-ver = "V1.9.0"         # 当前版本
-ver_log = "日志：可以监听多个群组 配置文件部分字段改中文 优化程序性能"    # 日志
+ver = "V1.9.1"         # 当前版本
+ver_log = "日志：新增群新人欢迎功能，通过消息指令开关"    # 日志
 import time
 import json
 import re
@@ -40,6 +40,8 @@ bot_name = ""       # 机器人名字
 cmd = ""            # 命令接收账号（管理员）
 group = []          # 群聊ID
 group_switch = None # 群机器人开关
+group_welcome = False
+group_welcome_msg = "欢迎新朋友！请先查看群公告！本消息由wxautox发送!"
 model1 = ""         # 模型1标识
 model2 = ""         # 模型2标识
 model3 = ""         # 模型3标识
@@ -320,7 +322,34 @@ def wx_send_ai(chat, message):
             chat.SendMsg(reply_)
     else:
         chat.SendMsg(reply)
-
+def find_new_group_friend(msg, flag):
+    '''
+    寻找新的群好友
+    msg：系统消息
+    flag：若是邀请的消息则填3，扫描二维码的消息则填1
+    '''
+    text = msg
+    try:
+        first_quote_content = text.split('"')[flag]
+    except:
+        first_quote_content = text.split('"')[1]
+    # print("新人:", first_quote_content)  # 输出: Gary10
+    return first_quote_content
+def send_group_welcome_msg(chat, message):
+    '''
+    监听群组欢迎新人
+    '''
+    if message.type != 'SYS' and message.type != 'sys':
+        return
+    else:
+        print(f"{chat.who} 系统消息:",message.content)
+        if "加入群聊" in message.content:
+            # print("新群友:", 提取新人(msg.content))
+            chat.SendMsg(msg=group_welcome_msg, at=find_new_group_friend(message.content, 1))
+        if "加入了群聊" in message.content:
+            # print("新群友:", 提取新人(msg.content))
+            chat.SendMsg(msg=group_welcome_msg, at=find_new_group_friend(message.content, 3))
+        return
 def process_message(chat, message):
     """
     处理收到的单条消息，并根据不同情况调用 DeepSeek API 或执行命令
@@ -329,7 +358,9 @@ def process_message(chat, message):
         chat: 消息所属的会话对象（包含 who 等信息）
         message: 消息对象（包含 type, sender, content 等信息）
     """
-    global DS_NOW_MOD
+    global DS_NOW_MOD, group_welcome, group_welcome_msg
+    if group_welcome:
+        send_group_welcome_msg(chat, message)
     # 只处理好友消息
     if message.type != 'friend':
         return
@@ -433,6 +464,23 @@ def process_message(chat, message):
                 wx.RemoveListenChat(user) # 删除群组监听窗口
             # init_wx_listeners()
             chat.SendMsg(message.content + ' 完成\n' +'当前群：\n' + ", ".join(group))
+        elif message.content == "/开启群机器人欢迎语":
+            group_welcome = True
+            chat.SendMsg(message.content + ' 完成\n' +'当前群：\n' + ", ".join(group))
+        elif message.content == "/关闭群机器人欢迎语":
+            group_welcome = False
+            chat.SendMsg(message.content + ' 完成\n' +'当前群：\n' + ", ".join(group))
+        elif message.content == "/群机器人欢迎语状态":
+            if group_welcome:
+                chat.SendMsg("/群机器人欢迎语状态 为开启\n" +'当前群：\n' + ", ".join(group))
+            else:
+                chat.SendMsg("/群机器人欢迎语状态 为关闭\n" +'当前群：\n' + ", ".join(group))
+        elif message.content == "/当前群机器人欢迎语":
+            chat.SendMsg(message.content + '\n' +group_welcome_msg)
+        elif "/更改群机器人欢迎语为" in message.content:
+            new_welcome = re.sub("/更改群机器人欢迎语为", "", message.content).strip()
+            group_welcome_msg = new_welcome
+            chat.SendMsg('群机器人欢迎语已更新\n' + group_welcome_msg)
         elif message.content == "/当前模型":
             chat.SendMsg(message.content + " " + DS_NOW_MOD)
         elif message.content == "/切换模型1": # 1
@@ -481,6 +529,11 @@ def process_message(chat, message):
                 '[/开启群机器人]\n'
                 '[/关闭群机器人]\n'
                 '[/群机器人状态]\n'
+                '[/开启群机器人欢迎语]\n'
+                '[/关闭群机器人欢迎语]\n'
+                '[/群机器人欢迎语状态]\n'
+                '[/当前群机器人欢迎语]\n'
+                '[/更改群机器人欢迎语为***]\n'
                 '[/当前模型] （返回当前模型）\n'
                 '[/切换模型1] （切换回复模型为配置中的 model1）\n'
                 '[/切换模型2]\n'
@@ -541,11 +594,12 @@ def main():
                     is_err(wx.nickname+" wxbot监听出错！！微信可能已被弹出登录！！在线检查失败！！", e)
                 check_counter = 0
             
-            # 遍历所有监听的会话
+            # 消息处理模块 遍历所有监听的会话 1s
             messages_dict = wx.GetListenMessage()
             for chat in messages_dict:
                 for message in messages_dict.get(chat, []):
                     process_message(chat, message)
+
         except Exception as e:
             is_err(wx.nickname+" wxbot消息处理出错！！微信可能已被弹出登录！！处理监听失败！！", e)
 
