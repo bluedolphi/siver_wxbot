@@ -61,11 +61,11 @@ def is_err(id, err="无"):
     while True:
         print("程序已保护现场，检查后请重启程序")
         time.sleep(100)
-def now_time():
+def now_time(time="%Y/%m/%d %H:%M:%S "):
     # 获取当前时间
     now = datetime.now()
     # 格式化时间为 YYYY/MM/DD HH:mm:ss
-    formatted_time = now.strftime("%Y/%m/%d %H:%M:%S ")
+    formatted_time = now.strftime(time)
     return formatted_time
 
 def check_wechat_window():
@@ -342,13 +342,17 @@ def send_group_welcome_msg(chat, message):
     if message.type != 'SYS' and message.type != 'sys':
         return
     else:
-        print(f"{chat.who} 系统消息:",message.content)
+        print(now_time()+f"{chat.who} 系统消息:", message.content)
         if "加入群聊" in message.content:
-            # print("新群友:", 提取新人(msg.content))
-            chat.SendMsg(msg=group_welcome_msg, at=find_new_group_friend(message.content, 1))
-        if "加入了群聊" in message.content:
-            # print("新群友:", 提取新人(msg.content))
-            chat.SendMsg(msg=group_welcome_msg, at=find_new_group_friend(message.content, 3))
+            new_friend = find_new_group_friend(message.content, 1) # 扫码加入
+            print(f"{chat.who} 新群友:", new_friend)
+            time.sleep(2) # 等待2秒微信刷新
+            chat.SendMsg(msg=group_welcome_msg, at=new_friend)
+        elif "加入了群聊" in message.content:
+            new_friend = find_new_group_friend(message.content, 3) # 个人邀请
+            print(f"{chat.who} 新群友:", new_friend)
+            time.sleep(2) # 等待2秒微信刷新
+            chat.SendMsg(msg=group_welcome_msg, at=new_friend)
         return
 def process_message(chat, message):
     """
