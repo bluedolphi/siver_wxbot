@@ -2,7 +2,7 @@
 
 [点击查看效果展示截图](./README_img.md)   
 使用`wxauto`实现 | `wxauto`作者仓库: [cluic/wxauto](https://github.com/cluic/wxauto)  
-如需使用源码中的`wxautox`即`wxauto plus`请前往链接中的群内询问购买[wxautox plus群链接](https://plus.wxauto.org/images/group_qrcode.png)，不购买可到release中下载我打包好的exe来体验plus版  
+如需使用源码中的`wxautox`即`wxauto plus`请前往链接中的群内询问购买wxautox plus[群链接](https://plus.wxauto.org/images/group_qrcode.png)，不购买可到release中下载我打包好的exe来体验plus版  
 本作控制微信的最新源码在`wxbot_preview.py`，`main.py`为主程序UI界面加机器人线程控制源码.   
 本作作者:https://siver.top
 
