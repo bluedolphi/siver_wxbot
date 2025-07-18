@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # Siver微信机器人 siver_wxbot
 # 作者：https://siver.top
-# 版本：1.9.1 # 
 
-ver = "V1.9.1"         # 当前版本
+ver = "V2.0.0"         # 当前版本
 ver_log = "日志：新增群新人欢迎功能，通过消息指令开关"    # 日志
 import time
 import json
@@ -11,17 +10,9 @@ import re
 import traceback
 import email_send
 from openai import OpenAI
-import win32gui
 from datetime import datetime, timedelta
-# from wxauto import WeChat
-try:
-    from wxautox import WeChat # plus版需要找wxauto作者购买 https://github.com/cluic/wxauto
-    is_wxautox = True # 是否为wxautox 即plus版本
-    print("当前调用wxautox plus版")
-except:
-    from wxauto import WeChat
-    is_wxautox = False # 是否为wxautox 即plus版本
-    print("当前调用wxauto 普通版")
+from wxauto import WeChat
+from wxauto.msgs import *
 
 # -------------------------------
 # 配置相关
@@ -289,21 +280,36 @@ def init_wx_listeners():
     初始化微信监听器，根据配置添加监听用户和群聊
     """
     global wx, AtMe
-    wx = WeChat()
-    AtMe = "@"+wx.nickname+" " # 绑定AtMe
+    if not wx:
+        print("本次未获取客户端，正在初始化微信客户端...")
+        wx = WeChat()
+
+    AtMe = "@"+wx.nickname # 绑定AtMe
+    print('启动wxautox监听器...')
+    wx.StartListening() # 启动监听器
     # 添加管理员监听
-    wx.AddListenChat(who=cmd, savepic=True)
+    wx.AddListenChat(nickname=cmd, callback=message_handle_callback)
     print("添加管理员监听完成")
     # 添加个人用户监听
     for user in listen_list:
-        wx.AddListenChat(who=user, savepic=True)
+        wx.AddListenChat(nickname=user, callback=message_handle_callback)
     # 如果群机器人开关开启，则添加群聊监听
     if group_switch == "True":
         for user in group:
-            wx.AddListenChat(who=user)
+            wx.AddListenChat(nickname=user, callback=message_handle_callback)
         print("群组监听设置完成")
     # print(config.get('group', ""))
     print("监听器初始化完成")
+def message_handle_callback(msg, chat):
+    """消息处理回调"""
+    text = datetime.now().strftime("%Y/%m/%d %H:%M:%S ") + f'类型：{msg.type} 属性：{msg.attr} 窗口：{chat.who} 发送人：{msg.sender_remark} - 消息：{msg.content}'
+    print(text)
+    if isinstance(msg, FriendMessage): # 好友群友的消息
+        process_message(chat, msg)
+    elif isinstance(msg, SystemMessage): # 系统的消息
+        if group_welcome: # 群新人欢迎语开关
+            send_group_welcome_msg(chat, msg) # 获取子窗口对象与消息对象送入处理
+
 def wx_send_ai(chat, message):
     # 默认：回复 AI 生成的消息
     # chat.SendMsg("已接收，请耐心等待回答")
@@ -339,21 +345,18 @@ def send_group_welcome_msg(chat, message):
     '''
     监听群组欢迎新人
     '''
-    if message.type != 'SYS' and message.type != 'sys':
-        return
-    else:
-        print(now_time()+f"{chat.who} 系统消息:", message.content)
-        if "加入群聊" in message.content:
-            new_friend = find_new_group_friend(message.content, 1) # 扫码加入
-            print(f"{chat.who} 新群友:", new_friend)
-            time.sleep(2) # 等待2秒微信刷新
-            chat.SendMsg(msg=group_welcome_msg, at=new_friend)
-        elif "加入了群聊" in message.content:
-            new_friend = find_new_group_friend(message.content, 3) # 个人邀请
-            print(f"{chat.who} 新群友:", new_friend)
-            time.sleep(2) # 等待2秒微信刷新
-            chat.SendMsg(msg=group_welcome_msg, at=new_friend)
-        return
+    print(now_time()+f"{chat.who} 系统消息:", message.content)
+    if "加入群聊" in message.content:
+        new_friend = find_new_group_friend(message.content, 1) # 扫码加入
+        print(f"{chat.who} 新群友:", new_friend)
+        time.sleep(2) # 等待2秒微信刷新
+        chat.SendMsg(msg=group_welcome_msg, at=new_friend)
+    elif "加入了群聊" in message.content:
+        new_friend = find_new_group_friend(message.content, 3) # 个人邀请
+        print(f"{chat.who} 新群友:", new_friend)
+        time.sleep(2) # 等待2秒微信刷新
+        chat.SendMsg(msg=group_welcome_msg, at=new_friend)
+    return
 def process_message(chat, message):
     """
     处理收到的单条消息，并根据不同情况调用 DeepSeek API 或执行命令
@@ -363,10 +366,8 @@ def process_message(chat, message):
         message: 消息对象（包含 type, sender, content 等信息）
     """
     global DS_NOW_MOD, group_welcome, group_welcome_msg
-    if group_welcome:
-        send_group_welcome_msg(chat, message)
     # 只处理好友消息
-    if message.type != 'friend':
+    if message.attr != 'friend':
         return
 
     print(now_time()+f"\n{chat.who} 窗口 {message.sender} 说：{message.content}")
@@ -558,17 +559,14 @@ def process_message(chat, message):
     # 普通好友消息：先提示已接收，再调用 AI 接口获取回复
     wx_send_ai(chat, message)
 
-
+run_flag = True  # 运行标记，用于控制程序退出
 def main():
     # 输出版本信息
-    global ver
-    print(f"wxbot\n版本: wxbot_{ver}\n作者: https://siver.top\n请使用V1.1配置管理器管理配置")
+    global ver, run_flag
+    print(f"wxbot\n版本: wxbot_{ver}\n作者: https://siver.top")
     
     # 加载配置并更新全局变量
     refresh_config()
-    
-    set_group_switch("False") # 首次启动关闭群机器人
-    print("首次启动群机器人设置为 关闭")
 
     try:
         # 初始化微信监听器
@@ -576,8 +574,7 @@ def main():
     except Exception as e:
         print(traceback.format_exc())
         print("初始化微信监听器失败，请检查微信是否启动登录正确")
-        while True:
-            time.sleep(100)
+        run_flag = False
 
     
     wait_time = 1  # 每1秒检查一次新消息
@@ -585,30 +582,19 @@ def main():
     check_counter = 0
     print(now_time()+'siver_wxbot初始化完成，开始监听消息(作者:https://siver.top)')
     wx.SendMsg('siver_wxbot初始化完成', who=cmd)
-    # 主循环：持续监听并处理消息
-    while True:
-        try:
-            # 离线检测模块  10s
-            check_counter += 1
-            if check_counter >= check_interval:
-                try:
-                    if not check_wechat_window():
-                        is_err(wx.nickname+" wxbot监听出错！！微信可能已被弹出登录！！在线检查失败！！")
-                except Exception as e:
-                    is_err(wx.nickname+" wxbot监听出错！！微信可能已被弹出登录！！在线检查失败！！", e)
-                check_counter = 0
-            
-            # 消息处理模块 遍历所有监听的会话 1s
-            messages_dict = wx.GetListenMessage()
-            for chat in messages_dict:
-                for message in messages_dict.get(chat, []):
-                    process_message(chat, message)
-
-        except Exception as e:
-            is_err(wx.nickname+" wxbot消息处理出错！！微信可能已被弹出登录！！处理监听失败！！", e)
-
+    # 主循环：保持运行
+    while run_flag:
         time.sleep(wait_time)  # 等待1秒
+    print(now_time()+'siver_wxbot已停止运行')
 
+def start_bot():
+    """启动机器人"""
+    main()  # 执行主函数
+def stop_bot():
+    """停止机器人"""
+    wx.StopListening() # 停止wxauto监听器
+    run_flag = False  # 停止主循环
+    print(now_time()+'siver_wxbot已停止运行')
 
 if __name__ == "__main__":
     main()  # 执行主函数

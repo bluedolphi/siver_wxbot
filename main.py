@@ -405,7 +405,7 @@ class ConfigEditor:
                         pythoncom.CoInitialize()
                     except ImportError:
                         pass
-                    wxbot_preview.main()
+                    wxbot_preview.start_bot()
                 except Exception as e:
                     print("机器人运行时出错：", e)
                 finally:
@@ -436,8 +436,9 @@ class ConfigEditor:
         """
         try:
             if self.bot_thread and self.bot_thread.is_alive():
-                _async_raise(self.bot_thread.ident, KeyboardInterrupt)
-                self.bot_thread.join(timeout=10)
+                # _async_raise(self.bot_thread.ident, KeyboardInterrupt)
+                # self.bot_thread.join(timeout=10)
+                wxbot_preview.stop_bot() # 调用 wxbot_preview 模块的停止函数
                 self.status_style = "inverse-danger"
                 self.status_label.config(bootstyle=self.status_style)
                 self.status_var.set("状态：机器人已关闭")

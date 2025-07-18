@@ -1,15 +1,15 @@
 # Siver微信机器人
 
 [点击查看效果展示截图](./README_img.md)   
-使用`wxauto`实现 | `wxauto`作者仓库: [cluic/wxauto](https://github.com/cluic/wxauto)  
-如需使用源码中的`wxautox`即`wxauto plus`请前往链接中的群内询问购买wxautox plus[群链接](https://plus.wxauto.org/images/group_qrcode.png)，不购买可到release中下载我打包好的exe来体验plus版  
+使用开源版`wxauto`实现 | `wxauto`作者仓库: [cluic/wxauto](https://github.com/cluic/wxauto)  
+如需更好的体验，请前往链接中的群内询问购买wxautox plus或交流 ![群链接](https://plus.wxauto.org/images/group_qrcode.png)
 本作控制微信的最新源码在`wxbot_preview.py`，`main.py`为主程序UI界面加机器人线程控制源码.   
 本作作者:https://siver.top
 
 ---
 
 ## 🛠 V1.9.0及以后版本首次配置
-⚠️仅支持Windows微信，微信版本`3.9.11.17`或者`3.9.11.xxx`任意版本均可⚠️  
+⚠️仅支持Windows微信，微信版本`3.9.11`及以上到`3.9.12.51`任意版本均可（不支持4.0）⚠️  
 V1.9.0往后版本只有一个 `wxbot_V*.*.*.exe` 里面集成了配置更改与开关机器人，如果要自行打包或者运行`.py`，打包或者运行`main.py`文件即可
 1. 运行 **`wxbot_V1.9.0.exe`** 或更高版本
 2. 若提示无配置文件，按指引创建新配置
