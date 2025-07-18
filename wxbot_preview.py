@@ -3,7 +3,7 @@
 # 作者：https://siver.top
 
 ver = "V2.0.0"         # 当前版本
-ver_log = "日志：新增群新人欢迎功能，通过消息指令开关"    # 日志
+ver_log = "日志：全新版本2.0，支持最新wxauto V2"    # 日志
 import time
 import json
 import re
