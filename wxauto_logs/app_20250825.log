@@ -1,0 +1,11 @@
+2025-08-25 22:26:08 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-25 22:26:08 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 胡不归, False, False, 0.5
+2025-08-25 22:26:16 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 胡不归
+2025-08-25 22:26:17 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: 胡不归
+2025-08-25 22:26:17 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 归归, False, False, 0.5
+2025-08-25 22:26:25 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 归归
+2025-08-25 22:26:27 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: 归归
+2025-08-25 22:26:27 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: wxbot_test, False, False, 0.5
+2025-08-25 22:26:34 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: wxbot_test
+2025-08-25 22:26:35 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: wxbot_test
+2025-08-25 22:26:35 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 胡不归, False, False, 0.5

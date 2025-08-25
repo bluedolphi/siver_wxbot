@@ -1,0 +1,43 @@
+{
+    "api_configs": [
+        {
+            "id": "api_1",
+            "name": "默认API",
+            "platform": "openai",
+            "api_key": "your-api-key",
+            "base_url": "https://api.example.com/v1",
+            "model": "gpt-3.5-turbo",
+            "enabled": true,
+            "is_default": true
+        }
+    ],
+    "bot_settings": {
+        "机器人名字": "666",
+        "prompt": "请输入系统提示词...",
+        "管理员": "胡不归",
+        "default_api_id": "api_1"
+    },
+    "listen_rules": {
+        "群机器人开关": true,
+        "users": [
+            {
+                "name": "归归",
+                "api_id": "api_1",
+                "enabled": true
+            }
+        ],
+        "groups": [
+            {
+                "name": "wxbot_test",
+                "api_id": "api_1",
+                "enabled": true,
+                "at_required": false,
+                "admins": ["胡不归"]
+            }
+        ]
+    },
+    "memo": {
+        "备忘录1": "备忘信息1",
+        "备忘录2": "备忘信息2"
+    }
+}

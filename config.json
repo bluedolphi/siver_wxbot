@@ -1,5 +1,5 @@
 {
-    "鼠标放在？？上查看提示": "鼠标放在？？上查看提示",
+    "鼠标放在？上查看提示": "鼠标放在？上查看提示",
     "api_key": "your-api-key",
     "base_url": "https://api.example.com/v1",
     "model1": "模型名称1",
@@ -7,7 +7,7 @@
     "model3": "模型名称3",
     "model4": "模型名称4",
     "prompt": "请输入系统提示词...",
-    "管理员": "胡不归",
+    "管理员": "{阿标}",
     "监听用户列表": [
         "归归"
     ],
@@ -17,5 +17,38 @@
     ],
     "群机器人开关": "True",
     "备忘录1": "备忘信息1",
-    "备忘录2": "备忘信息2"
+    "备忘录2": "备忘信息2",
+    "api_configs": [
+        {
+            "id": "api_1",
+            "name": "ragflow",
+            "platform": "ragflow",
+            "api_key": "ragflow-NkZTYwZjZhNzkwYjExZjA4ZmM0ODJhMj",
+            "base_url": "http://ragflow.56lai.cc/api/v1/chats_openai/b4d06cf2790a11f0a74482a266f296aa/chat/completions",
+            "model": "模型名称1",
+            "enabled": true,
+            "is_default": true
+        }
+    ],
+    "listen_rules": {
+        "global_bot_enabled": true,
+        "default_api_id": "ragflow (api_1)",
+        "user_rules": [
+            {
+                "name": "蓝京",
+                "api_id": "api_1",
+                "enabled": true
+            }
+        ],
+        "group_rules": [
+            {
+                "name": "test00",
+                "api_id": "api_1",
+                "enabled": true,
+                "at_required": false,
+                "admins": []
+            }
+        ]
+    },
+    "default_api_id": "api_1"
 }

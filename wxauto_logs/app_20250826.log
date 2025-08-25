@@ -1,0 +1,189 @@
+2025-08-26 00:10:30 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 00:10:30 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 00:10:39 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 00:10:40 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 00:10:40 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 归归, False, False, 0.5
+2025-08-26 00:10:47 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 归归
+2025-08-26 00:10:49 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: 归归
+2025-08-26 00:10:49 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: wxbot_test, False, False, 0.5
+2025-08-26 00:10:56 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: wxbot_test
+2025-08-26 00:10:57 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: wxbot_test
+2025-08-26 00:10:57 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 00:22:40 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 00:22:40 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 00:22:47 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 00:22:48 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 00:22:48 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 00:22:50 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
+2025-08-26 00:22:50 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 00:22:51 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
+2025-08-26 00:22:52 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
+2025-08-26 00:22:55 [wxauto] [DEBUG] [sessionbox.py:128]  test00 完整匹配
+2025-08-26 00:22:56 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
+2025-08-26 00:22:56 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
+2025-08-26 00:22:59 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
+2025-08-26 00:23:00 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 00:23:22 [wxauto] [DEBUG] [msg.py:79]  content: 你是谁呀？, length: 8
+2025-08-26 00:23:22 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 00:23:22 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 你是谁呀？
+2025-08-26 00:23:25 [openai._base_client] [DEBUG] [_base_client.py:482]  Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-38b6a375-12e9-4823-8e49-a9ea9d5e1829', 'json_data': {'messages': [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': '你是谁呀？'}], 'model': '模型名称1', 'stream': False}}
+2025-08-26 00:23:25 [openai._base_client] [DEBUG] [_base_client.py:978]  Sending HTTP Request: POST http://ragflow.56lai.cc/api/v1/chats_openai/b4d06cf2790a11f0a74482a266f296aa/chat/completions/chat/completions
+2025-08-26 00:23:25 [httpcore.connection] [DEBUG] [_trace.py:47]  connect_tcp.started host='127.0.0.1' port=9300 local_address=None timeout=5.0 socket_options=None
+2025-08-26 00:23:25 [httpcore.connection] [DEBUG] [_trace.py:47]  connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000021EA4CB2150>
+2025-08-26 00:23:25 [httpcore.http11] [DEBUG] [_trace.py:47]  send_request_headers.started request=<Request [b'POST']>
+2025-08-26 00:23:25 [httpcore.http11] [DEBUG] [_trace.py:47]  send_request_headers.complete
+2025-08-26 00:23:25 [httpcore.http11] [DEBUG] [_trace.py:47]  send_request_body.started request=<Request [b'POST']>
+2025-08-26 00:23:25 [httpcore.http11] [DEBUG] [_trace.py:47]  send_request_body.complete
+2025-08-26 00:23:25 [httpcore.http11] [DEBUG] [_trace.py:47]  receive_response_headers.started request=<Request [b'POST']>
+2025-08-26 00:23:28 [httpcore.http11] [DEBUG] [_trace.py:47]  receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Connection', b'close'), (b'Content-Length', b'65'), (b'Content-Type', b'application/json'), (b'Date', b'Mon, 25 Aug 2025 16:23:29 GMT'), (b'Server', b'nginx/1.18.0 (Ubuntu)')])
+2025-08-26 00:23:28 [httpx] [INFO] [_client.py:1025]  HTTP Request: POST http://ragflow.56lai.cc/api/v1/chats_openai/b4d06cf2790a11f0a74482a266f296aa/chat/completions/chat/completions "HTTP/1.1 200 OK"
+2025-08-26 00:23:28 [httpcore.http11] [DEBUG] [_trace.py:47]  receive_response_body.started request=<Request [b'POST']>
+2025-08-26 00:23:28 [httpcore.http11] [DEBUG] [_trace.py:47]  receive_response_body.complete
+2025-08-26 00:23:28 [httpcore.http11] [DEBUG] [_trace.py:47]  response_closed.started
+2025-08-26 00:23:28 [httpcore.http11] [DEBUG] [_trace.py:47]  response_closed.complete
+2025-08-26 00:23:28 [openai._base_client] [DEBUG] [_base_client.py:1016]  HTTP Response: POST http://ragflow.56lai.cc/api/v1/chats_openai/b4d06cf2790a11f0a74482a266f296aa/chat/completions/chat/completions "200 OK" Headers({'connection': 'close', 'content-length': '65', 'content-type': 'application/json', 'date': 'Mon, 25 Aug 2025 16:23:29 GMT', 'server': 'nginx/1.18.0 (Ubuntu)'})
+2025-08-26 00:23:28 [openai._base_client] [DEBUG] [_base_client.py:1024]  request_id: None
+2025-08-26 00:23:33 [wxauto] [DEBUG] [msg.py:79]  content: API调用出错，请稍后再试。, length: 8
+2025-08-26 00:23:33 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - API调用出错，请稍后再试。
+2025-08-26 00:23:57 [wxauto] [DEBUG] [wx.py:216]  窗口 蓝京 已关闭，移除监听
+2025-08-26 00:23:59 [wxauto] [DEBUG] [wx.py:216]  窗口 test00 已关闭，移除监听
+2025-08-26 00:32:31 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 00:32:31 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 00:32:39 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 00:32:40 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 00:32:40 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 00:32:41 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
+2025-08-26 00:32:41 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 00:32:42 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
+2025-08-26 00:32:44 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
+2025-08-26 00:32:46 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
+2025-08-26 00:32:46 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
+2025-08-26 00:32:47 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
+2025-08-26 00:32:48 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 00:32:56 [wxauto] [DEBUG] [msg.py:79]  content: 你是谁呀？, length: 8
+2025-08-26 00:32:56 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 00:32:56 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 你是谁呀？
+2025-08-26 00:33:12 [wxauto] [DEBUG] [msg.py:79]  content: 知识库中未找到您要的答案！, length: 9
+2025-08-26 00:33:12 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 知识库中未找到您要的答案！
+2025-08-26 00:33:29 [wxauto] [DEBUG] [msg.py:79]  content: 陈宗彬生日, length: 8
+2025-08-26 00:33:29 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 00:33:29 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 陈宗彬生日
+2025-08-26 00:33:46 [wxauto] [DEBUG] [msg.py:79]  content: 根据知识库中的信息，陈宗彬的生日如下：
+
+1. 北京中保惠科技有限责任公司的同事陈宗彬，生日为1995年1月21日（农历）##1$$。  
+2. 另一处提到的陈宗彬（清华大学丘成桐数学科学中心助理教授）未提及具体生日信息##8$$。  
+3. 其他文档中出现的陈宗彬（如辅仁大学校友、健崴企业员工等）均未提供生日相关数据##9$$ ##11$$。  
+
+若您查询的是特定机构的陈宗彬，请进一步说明关联信息以便精准检索。, length: 8
+2025-08-26 00:33:46 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 根据知识库中的信息，陈宗彬的生日如下：
+
+1. 北京中保惠科技有限责任公司的同事陈宗彬，生日为1995年1月21日（农历）##1$$。  
+2. 另一处提到的陈宗彬（清华大学丘成桐数学科学中心助理教授）未提及具体生日信息##8$$。  
+3. 其他文档中出现的陈宗彬（如辅仁大学校友、健崴企业员工等）均未提供生日相关数据##9$$ ##11$$。  
+
+若您查询的是特定机构的陈宗彬，请进一步说明关联信息以便精准检索。
+2025-08-26 00:34:28 [wxauto] [DEBUG] [msg.py:79]  content: 兴豪身份证, length: 8
+2025-08-26 00:34:28 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 00:34:29 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 兴豪身份证
+2025-08-26 00:34:43 [wxauto] [DEBUG] [msg.py:79]  content: 根据知识库中的身份证信息，以下是关于“兴豪”的身份证信息：
+
+1. 陈兴豪 身份证：35032220090303051X ##0$$
+2. 陈兴怡 身份证：350322201707090528 ##0$$
+
+知识库中未找到其他与“兴豪”相关的身份证信息。, length: 9
+2025-08-26 00:34:43 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 根据知识库中的身份证信息，以下是关于“兴豪”的身份证信息：
+
+1. 陈兴豪 身份证：35032220090303051X ##0$$
+2. 陈兴怡 身份证：350322201707090528 ##0$$
+
+知识库中未找到其他与“兴豪”相关的身份证信息。
+2025-08-26 00:35:44 [wxauto] [DEBUG] [msg.py:79]  content: [链接], length: 17
+2025-08-26 00:35:44 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 00:35:44 [wxauto] [DEBUG] [wx.py:224]  [friend other]获取到新消息：蓝京 - [链接]
+2025-08-26 00:35:57 [wxauto] [DEBUG] [msg.py:79]  content: 知识库中未找到您要的答案！, length: 8
+2025-08-26 00:35:57 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 知识库中未找到您要的答案！
+2025-08-26 00:36:35 [wxauto] [DEBUG] [msg.py:79]  content: 兴豪身份证, length: 10
+2025-08-26 00:36:35 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：test00 - 以下为新消息
+2025-08-26 00:36:35 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：test00 - 兴豪身份证
+2025-08-26 00:36:57 [wxauto] [DEBUG] [msg.py:79]  content: @蓝京 根据知识库中的身份证信息，以下是关于“兴豪”的身份证信息：
+
+1. 陈兴豪 身份证：35032220090303051X ##0$$
+2. 陈兴怡 身份证：350322201707090528 ##0$$
+
+知识库中未找到其他与“兴豪”相关的身份证信息。, length: 8
+2025-08-26 00:36:57 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - @蓝京 根据知识库中的身份证信息，以下是关于“兴豪”的身份证信息：
+
+1. 陈兴豪 身份证：35032220090303051X ##0$$
+2. 陈兴怡 身份证：350322201707090528 ##0$$
+
+知识库中未找到其他与“兴豪”相关的身份证信息。
+2025-08-26 00:37:02 [wxauto] [DEBUG] [msg.py:79]  content: 陈彬个人信息, length: 8
+2025-08-26 00:37:02 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 陈彬个人信息
+2025-08-26 00:37:10 [wxauto] [DEBUG] [msg.py:79]  content: 陈彬个人信息, length: 8
+2025-08-26 00:37:10 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 00:37:10 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 陈彬个人信息
+2025-08-26 00:37:19 [wxauto] [DEBUG] [msg.py:79]  content: 陈彬个人信息, length: 10
+2025-08-26 00:37:19 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：test00 - 以下为新消息
+2025-08-26 00:37:19 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：test00 - 陈彬个人信息
+2025-08-26 00:37:38 [wxauto] [DEBUG] [msg.py:79]  content: RAGFlow API调用出错: HTTPConnectionPool(host='127.0.0.1', port=9300): Read timed out. (read timeout=30), length: 8
+2025-08-26 00:37:38 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - RAGFlow API调用出错: HTTPConnectionPool(host='127.0.0.1', port=9300): Read timed out. (read timeout=30)
+2025-08-26 00:37:39 [wxauto] [DEBUG] [msg.py:79]  content: @蓝京 根据知识库内容，以下是关于“陈彬”的个人信息汇总：
+
+1. **身份证信息**：
+   - 姓名：陈彬；性别：男；民族：汉；住址：福建省仙游县郊尾镇塘边村蔡厝39号；公民身份号码：350322199609131015；农历生日：1996年9月13日；新历生日：1996年10月24日 ##0$$。
+
+2. **其他同名人物**（需注意区分）：
+   - **作家陈彬**（笔名跳舞）：1981年8月出生，江苏南京人，阅文集团白金作家，中国作家协会全国委员会委员等职务 ##1$$。
+   - **工程师陈彬**：1976年10月出生，湖北武汉人，现任中国一汽集团党委常委、副总经理，清华大学车辆工程专业研究生毕业 ##2$$。
+   - **云丁科技创始人陈彬**：2014年创立云丁科技，现任CEO兼董事长 ##3$$。
+   - **电子科技大学教授陈彬**：智能计算研究院教授，研究方向为复杂系统建模与仿真 ##4$$。
+   - **湖南商学院资源环境学院教授陈彬**：研究方向包括生态系统健康、能源政策等，担任多本SCI期刊编委 ##5$$。
+   - **中国科学院大学研究员陈彬**：研究领域涉及气溶胶光学特性、沙尘气溶胶垂直分布等 ##6$$。
+
+如需特定人物的详细信息，请进一步说明以区分同名者。, length: 8
+2025-08-26 00:37:39 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - @蓝京 根据知识库内容，以下是关于“陈彬”的个人信息汇总：
+
+1. **身份证信息**：
+   - 姓名：陈彬；性别：男；民族：汉；住址：福建省仙游县郊尾镇塘边村蔡厝39号；公民身份号码：350322199609131015；农历生日：1996年9月13日；新历生日：1996年10月24日 ##0$$。
+
+2. **其他同名人物**（需注意区分）：
+   - **作家陈彬**（笔名跳舞）：1981年8月出生，江苏南京人，阅文集团白金作家，中国作家协会全国委员会委员等职务 ##1$$。
+   - **工程师陈彬**：1976年10月出生，湖北武汉人，现任中国一汽集团党委常委、副总经理，清华大学车辆工程专业研究生毕业 ##2$$。
+   - **云丁科技创始人陈彬**：2014年创立云丁科技，现任CEO兼董事长 ##3$$。
+   - **电子科技大学教授陈彬**：智能计算研究院教授，研究方向为复杂系统建模与仿真 ##4$$。
+   - **湖南商学院资源环境学院教授陈彬**：研究方向包括生态系统健康、能源政策等，担任多本SCI期刊编委 ##5$$。
+   - **中国科学院大学研究员陈彬**：研究领域涉及气溶胶光学特性、沙尘气溶胶垂直分布等 ##6$$。
+
+如需特定人物的详细信息，请进一步说明以区分同名者。
+2025-08-26 00:37:41 [wxauto] [DEBUG] [msg.py:79]  content: @根据知识库内容，以下是名为“陈彬”的不同个人信息汇总：
+
+1. **身份证信息**：
+   - 姓名：陈彬；性别：男；民族：汉；住址：福建省仙游县郊尾镇塘边村蔡厝39号；公民身份号码：350322199609131015；农历生日：1996年9月13日；新历生日：1996年10月24日 ##0$$。
+
+2. **百度百科人物**：
+   - **陈彬（笔名跳舞）**：1981年8月出生，江苏南京人，阅文集团白金作家，中国作家协会全国委员会委员、江苏省政协常委等职 ##1$$。
+   - **陈彬（汽车行业）**：1976年10月出生，湖北武汉人，清华大学车辆工程专业研究生，现任中国一汽党委常委、副总经理 ##2$$。
+   - **陈彬（云丁科技创始人）**：2014年创立云丁科技，担任CEO兼董事长 ##3$$。
+
+3. **学术领域**：
+   - **电子科技大学教授**：研究方向为复杂系统建模与仿真，任职于智能计算研究院 ##4$$。
+   - **湖南工商大学资源环境学院教授**：担任SCI期刊编委，研究方向包括生态系统健康、能源政策等 ##5$$。
+   - **中国科学院大学学者**：研究领域涉及气溶胶光学特性、沙尘气溶胶垂直分布等大气科学方向 ##6$$。
+
+注：以上信息为知识库中同名不同人的数据，需根据具体上下文区分。若需特定个体的更多信息，请进一步说明。, length: 9
+2025-08-26 00:37:41 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - @根据知识库内容，以下是名为“陈彬”的不同个人信息汇总：
+
+1. **身份证信息**：
+   - 姓名：陈彬；性别：男；民族：汉；住址：福建省仙游县郊尾镇塘边村蔡厝39号；公民身份号码：350322199609131015；农历生日：1996年9月13日；新历生日：1996年10月24日 ##0$$。
+
+2. **百度百科人物**：
+   - **陈彬（笔名跳舞）**：1981年8月出生，江苏南京人，阅文集团白金作家，中国作家协会全国委员会委员、江苏省政协常委等职 ##1$$。
+   - **陈彬（汽车行业）**：1976年10月出生，湖北武汉人，清华大学车辆工程专业研究生，现任中国一汽党委常委、副总经理 ##2$$。
+   - **陈彬（云丁科技创始人）**：2014年创立云丁科技，担任CEO兼董事长 ##3$$。
+
+3. **学术领域**：
+   - **电子科技大学教授**：研究方向为复杂系统建模与仿真，任职于智能计算研究院 ##4$$。
+   - **湖南工商大学资源环境学院教授**：担任SCI期刊编委，研究方向包括生态系统健康、能源政策等 ##5$$。
+   - **中国科学院大学学者**：研究领域涉及气溶胶光学特性、沙尘气溶胶垂直分布等大气科学方向 ##6$$。
+
+注：以上信息为知识库中同名不同人的数据，需根据具体上下文区分。若需特定个体的更多信息，请进一步说明。
