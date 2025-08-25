@@ -1,6 +1,6 @@
 '''
 邮件发送程序
-作者：https://siver.top
+作者：dolphi
 时间：2025-03-05
 
 email.txt文件格式：

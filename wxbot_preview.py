@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Siver微信机器人 siver_wxbot
-# 作者：https://siver.top
+# 作者：dolphi
 
 ver = "V2.0.0"         # 当前版本
 ver_log = "日志：全新版本2.0，支持最新wxauto V2"    # 日志
@@ -336,6 +336,35 @@ def deepseek_chat(message, model, stream, prompt):
 wx = None
 
 
+def safe_add_listen(nickname: str, retries: int = 3, delay: float = 1.5) -> bool:
+    """
+    安全添加监听：对 wx.AddListenChat 进行重试，避免微信UI未就绪导致的 LookupError。
+    """
+    for attempt in range(1, retries + 1):
+        try:
+            wx.AddListenChat(nickname=nickname, callback=message_handle_callback)
+            print(f"添加监听成功: {nickname}")
+            return True
+        except LookupError as e:
+            # 常见报错: Find Control Timeout: IDS_FAV_SEARCH_RESULT ListControl
+            print(
+                f"AddListenChat 失败({attempt}/{retries}): {e}\n"
+                "提示: 请确保微信 Windows 客户端已登录，主界面处于前台且会话列表可见；"
+                "不要最小化微信窗口。稍后将自动重试..."
+            )
+            try:
+                # 尝试重新启动监听，以触发UI刷新
+                wx.StartListening()
+            except Exception:
+                pass
+            time.sleep(delay)
+        except Exception as e:
+            print(f"AddListenChat 异常({attempt}/{retries}): {e}，稍后重试...")
+            time.sleep(delay)
+    print(f"添加监听失败（已重试 {retries} 次）: {nickname}")
+    return False
+
+
 def init_wx_listeners():
     """
     初始化微信监听器，根据新版 listen_rules 配置添加监听用户和群聊
@@ -349,10 +378,10 @@ def init_wx_listeners():
     print('启动wxautox监听器...')
     wx.StartListening() # 启动监听器
     
-    # 添加管理员监听
+    # 添加管理员监听（带重试）
     if cmd:
-        wx.AddListenChat(nickname=cmd, callback=message_handle_callback)
-        print(f"添加管理员监听完成: {cmd}")
+        if safe_add_listen(cmd):
+            print(f"添加管理员监听完成: {cmd}")
     
     # 获取新版监听规则配置
     listen_rules = config.get('listen_rules', {})
@@ -367,8 +396,8 @@ def init_wx_listeners():
     
     for user in enabled_users:
         if user and user != cmd:  # 避免重复添加管理员
-            wx.AddListenChat(nickname=user, callback=message_handle_callback)
-            print(f"添加用户监听: {user}")
+            if safe_add_listen(user):
+                print(f"添加用户监听: {user}")
     
     # 添加群组监听（检查全局开关和各群组启用状态）
     global_bot_enabled = listen_rules.get('global_bot_enabled', True)
@@ -382,8 +411,8 @@ def init_wx_listeners():
         
         for group_name in enabled_groups:
             if group_name:
-                wx.AddListenChat(nickname=group_name, callback=message_handle_callback)
-                print(f"添加群组监听: {group_name}")
+                if safe_add_listen(group_name):
+                    print(f"添加群组监听: {group_name}")
         
         if enabled_groups:
             print(f"群组监听设置完成，共 {len(enabled_groups)} 个群组")
@@ -750,7 +779,7 @@ def process_message(chat, message):
             chat.SendMsg(message.content + ' 完成\n')
         elif message.content == "/当前版本":
             global ver
-            chat.SendMsg(message.content + 'wxbot_' + ver + '\n' + ver_log + '\n作者:https://siver.top')
+            chat.SendMsg(message.content + 'wxbot_' + ver + '\n' + ver_log + '\n作者:dolphi')
         elif message.content == "/指令" or message.content == "指令":
             commands = (
                 '指令列表[发送中括号里内容]：\n'
@@ -777,7 +806,7 @@ def process_message(chat, message):
                 '[/更改AI设定为***] （更改AI设定，***为AI设定）\n'
                 '[/更新配置] （若在程序运行时修改过配置，请发送此指令以更新配置）\n'
                 '[/当前版本] (返回当前版本)\n'
-                '作者:https://siver.top  若有非法传播请告知'
+                '作者:dolphi  若有非法传播请告知'
             )
             chat.SendMsg(commands)
         else:
@@ -792,7 +821,7 @@ run_flag = True  # 运行标记，用于控制程序退出
 def main():
     # 输出版本信息
     global ver, run_flag
-    print(f"wxbot\n版本: wxbot_{ver}\n作者: https://siver.top")
+    print(f"wxbot\n版本: wxbot_{ver}\n作者: dolphi")
     
     # 加载配置并更新全局变量
     refresh_config()
@@ -813,7 +842,7 @@ def main():
     wait_time = 1  # 每1秒检查一次新消息
     check_interval = 10  # 每10次循环检查一次进程状态
     check_counter = 0
-    print(now_time()+'siver_wxbot初始化完成，开始监听消息(作者:https://siver.top)')
+    print(now_time()+'siver_wxbot初始化完成，开始监听消息(作者:dolphi)')
     
     # 发送启动通知给管理员（如果配置了）
     if cmd and wx:

@@ -3,7 +3,7 @@
 """
 异步消息处理模块
 用于处理WeChat机器人的消息队列、并发控制和异步API调用
-作者：https://siver.top
+作者：dolphi
 """
 
 import asyncio

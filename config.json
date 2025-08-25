@@ -25,9 +25,17 @@
             "platform": "ragflow",
             "api_key": "ragflow-NkZTYwZjZhNzkwYjExZjA4ZmM0ODJhMj",
             "base_url": "http://ragflow.56lai.cc/api/v1/chats_openai/b4d06cf2790a11f0a74482a266f296aa/chat/completions",
-            "model": "模型名称1",
             "enabled": true,
             "is_default": true
+        },
+        {
+            "id": "api_2",
+            "name": "dify_lily",
+            "platform": "dify",
+            "api_key": "app-ieEC20o5GR6l7KnuGszAcW2t",
+            "base_url": "http://dify.56lai.cc/v1",
+            "enabled": true,
+            "is_default": false
         }
     ],
     "listen_rules": {
@@ -43,7 +51,7 @@
         "group_rules": [
             {
                 "name": "test00",
-                "api_id": "api_1",
+                "api_id": "api_2",
                 "enabled": true,
                 "at_required": false,
                 "admins": []

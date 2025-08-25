@@ -6,7 +6,7 @@ siver_wxbot 现代化配置管理器 V3.0
     现代化UI设计的配置管理器，采用渐变色标题栏、卡片式布局、标签页切换等特色功能，
     提供完整的机器人控制功能和实时日志系统。
     
-作者：https://siver.top
+作者：dolphi
 """
 
 import json         # 处理JSON数据
@@ -179,7 +179,7 @@ class ConfigEditor:
     """
     def __init__(self, root):
         self.root = root
-        self.root.title("siver_wxbot 管理器 V2.0  https://siver.top")
+        self.root.title("siver_wxbot 管理器 V2.0  dolphi")
         self.root.geometry("800x800")
         
         # 机器人控制相关属性
@@ -229,7 +229,7 @@ class ConfigEditor:
         self.update_output()
         
         # 启动后添加欢迎日志
-        self.root.after(1000, lambda: self.log_message("siver_wxbot 配置管理器启动完成 - https://siver.top"))
+        self.root.after(1000, lambda: self.log_message("siver_wxbot 配置管理器启动完成 - dolphi"))
     
     def setup_ui(self):
         """构建主界面布局（现代化：渐变标题栏 + 卡片式 + 标签页 + 响应式）"""

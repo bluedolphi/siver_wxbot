@@ -187,3 +187,109 @@
    - **中国科学院大学学者**：研究领域涉及气溶胶光学特性、沙尘气溶胶垂直分布等大气科学方向 ##6$$。
 
 注：以上信息为知识库中同名不同人的数据，需根据具体上下文区分。若需特定个体的更多信息，请进一步说明。
+2025-08-26 06:52:45 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 06:52:46 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 06:52:53 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 06:52:54 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 06:52:54 [wxauto] [DEBUG] [main.py:188]  蓝京 获取到已存在的子窗口: <wxauto - WeChatSubWnd object("蓝京")>
+2025-08-26 06:52:54 [wxauto] [DEBUG] [main.py:188]  test00 获取到已存在的子窗口: <wxauto - WeChatSubWnd object("test00")>
+2025-08-26 06:52:54 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 06:53:03 [wxauto] [DEBUG] [msg.py:79]  content: hi, length: 10
+2025-08-26 06:53:03 [wxauto] [DEBUG] [wx.py:224]  [time base]获取到新消息：test00 - 6:53
+2025-08-26 06:53:03 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：test00 - hi
+2025-08-26 06:53:10 [wxauto] [DEBUG] [msg.py:79]  content: @蓝京 Dify API调用失败: HTTP 404, length: 8
+2025-08-26 06:53:10 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - @蓝京 Dify API调用失败: HTTP 404
+2025-08-26 06:54:25 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 06:54:25 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 06:54:37 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 06:55:02 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 06:55:10 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 06:55:11 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 06:55:11 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 06:55:18 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 06:55:19 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: 蓝京
+2025-08-26 06:55:19 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
+2025-08-26 06:55:22 [wxauto] [DEBUG] [sessionbox.py:128]  test00 完整匹配
+2025-08-26 06:55:22 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
+2025-08-26 06:55:22 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
+2025-08-26 06:55:23 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
+2025-08-26 06:55:24 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 06:55:30 [wxauto] [DEBUG] [msg.py:79]  content: hi, length: 10
+2025-08-26 06:55:30 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：test00 - hi
+2025-08-26 06:55:38 [wxauto] [DEBUG] [msg.py:79]  content: @蓝京 Hi there! It looks like your message is a bit empty—what’s on your mind? 😊 How can I help you today?, length: 9
+2025-08-26 06:55:38 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - @蓝京 Hi there! It looks like your message is a bit empty—what’s on your mind? 😊 How can I help you today?
+2025-08-26 06:59:49 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 06:59:50 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 06:59:57 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 06:59:58 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 06:59:58 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 06:59:59 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
+2025-08-26 06:59:59 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 07:00:00 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
+2025-08-26 07:00:02 [wxauto] [DEBUG] [main.py:188]  test00 获取到已存在的子窗口: <wxauto - WeChatSubWnd object("test00")>
+2025-08-26 07:00:02 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 07:00:10 [wxauto] [DEBUG] [msg.py:79]  content: who are you, length: 8
+2025-08-26 07:00:10 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - who are you
+2025-08-26 07:00:30 [wxauto] [DEBUG] [msg.py:79]  content: who are you, length: 8
+2025-08-26 07:00:30 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - who are you
+2025-08-26 07:01:21 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 07:01:22 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 07:01:29 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 07:01:30 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 07:01:30 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 07:01:31 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
+2025-08-26 07:01:31 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 07:01:32 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
+2025-08-26 07:01:33 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
+2025-08-26 07:01:35 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
+2025-08-26 07:01:35 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
+2025-08-26 07:01:37 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
+2025-08-26 07:01:38 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 07:01:59 [wxauto] [DEBUG] [msg.py:79]  content: who are you, length: 8
+2025-08-26 07:01:59 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - who are you
+2025-08-26 07:07:13 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 07:07:13 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 07:07:20 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 07:07:21 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 07:07:21 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 07:07:23 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
+2025-08-26 07:07:23 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 07:07:24 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
+2025-08-26 07:07:25 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
+2025-08-26 07:07:27 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
+2025-08-26 07:07:27 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
+2025-08-26 07:07:28 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
+2025-08-26 07:07:29 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 07:07:35 [wxauto] [DEBUG] [msg.py:79]  content: who are you, length: 8
+2025-08-26 07:07:35 [wxauto] [DEBUG] [wx.py:224]  [time base]获取到新消息：test00 - 7:07
+2025-08-26 07:07:35 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - who are you
+2025-08-26 07:08:19 [wxauto] [DEBUG] [msg.py:79]  content: who are you, length: 10
+2025-08-26 07:08:19 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：test00 - 以下为新消息
+2025-08-26 07:08:19 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：test00 - who are you
+2025-08-26 07:08:24 [wxauto] [DEBUG] [msg.py:79]  content: @蓝京 API调用出错，请稍后再试。, length: 8
+2025-08-26 07:08:24 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - @蓝京 API调用出错，请稍后再试。
+2025-08-26 07:08:32 [wxauto] [DEBUG] [msg.py:79]  content: who are you, length: 8
+2025-08-26 07:08:32 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 07:08:32 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - who are you
+2025-08-26 07:08:42 [wxauto] [DEBUG] [msg.py:79]  content: API调用出错，请稍后再试。, length: 9
+2025-08-26 07:08:42 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - API调用出错，请稍后再试。
+2025-08-26 07:10:02 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 07:10:02 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 07:10:09 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 07:10:10 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 07:10:10 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 07:10:11 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
+2025-08-26 07:10:11 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 07:10:12 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
+2025-08-26 07:10:14 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
+2025-08-26 07:10:16 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
+2025-08-26 07:10:16 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
+2025-08-26 07:10:17 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
+2025-08-26 07:10:18 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 07:10:32 [wxauto] [DEBUG] [msg.py:79]  content: who are you, length: 8
+2025-08-26 07:10:32 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - who are you
+2025-08-26 07:10:38 [wxauto] [DEBUG] [msg.py:79]  content: API调用出错，请稍后再试。, length: 9
+2025-08-26 07:10:38 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - API调用出错，请稍后再试。
+2025-08-26 07:16:24 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 07:16:24 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 07:16:37 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5

@@ -2,12 +2,44 @@ import json
 import time
 from typing import Dict, List, Tuple
 import requests
-from .base import BaseAPIConnector
+
+# 兼容包导入与脚本直接运行两种方式
+try:
+    from .base import BaseAPIConnector  # 包内相对导入
+except Exception:  # 当直接运行本文件时没有父包
+    import os, sys
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_dir)
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+    from API.base import BaseAPIConnector  # 绝对导入
 
 class DifyAPIConnector(BaseAPIConnector):
     """Dify API连接器"""
 
+    # 验证输入参数
+    def validate_input(self, api_key: str, base_url: str, name: str, timeout: int, retry_count: int):
+        if not api_key:
+            raise ValueError("Dify API密钥不能为空")
+        if not base_url:
+            raise ValueError("Dify API基础URL不能为空")
+        if not name:
+            raise ValueError("Dify API名称不能为空")
+        if not timeout:
+            raise ValueError("Dify API超时时间不能为空")
+        if not retry_count:
+            raise ValueError("Dify API重试次数不能为空")
+        
+
+        return True
+
     def __init__(self, api_key: str, base_url: str, name: str = "Dify", timeout: int = 30, retry_count: int = 3):
+        self.validate_input(api_key, base_url, name, timeout, retry_count)
+        if base_url.endswith("/"):
+            base_url = base_url[:-1]
+        if not base_url.endswith("/chat-messages"):
+            base_url += "/chat-messages"
+        
         super().__init__(api_key, base_url, name, timeout, retry_count)
         self.headers = {
             "Content-Type": "application/json",
