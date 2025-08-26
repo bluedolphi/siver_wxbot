@@ -76,7 +76,6 @@ class DifyAPIConnector(BaseAPIConnector):
             response_text = f"Dify API调用出错: {str(e)}"
         request_time = time.time() - start_time
         self.last_request_time = request_time
-        self._save_to_history(query, response_text, request_time)
         return response_text, request_time
     
     def chat(self, messages: List[Dict[str, str]], **kwargs) -> Tuple[str, float]:

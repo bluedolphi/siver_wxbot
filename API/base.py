@@ -19,22 +19,6 @@ class BaseAPIConnector(ABC):
         }
         self.last_request_time = 0  # 添加请求时长记录变量
 
-        # 历史记录数据库（延迟初始化）
-        self._history_db = None
-
-    @property
-    def history_db(self):
-        """获取历史记录数据库实例（延迟初始化）"""
-        if self._history_db is None:
-            try:
-                # 优先采用项目根目录的绝对导入（更稳妥）
-                from history_database import AIHistoryDatabase  # type: ignore
-                self._history_db = AIHistoryDatabase()
-            except Exception as e:
-                print(f"初始化历史记录数据库失败: {e}")
-                self._history_db = None
-        return self._history_db
-
     def _make_request_with_retry(self, url: str, headers: dict, data: dict) -> requests.Response:
         """带重试机制的请求方法"""
         last_exception = None
@@ -54,19 +38,6 @@ class BaseAPIConnector(ABC):
         # 如果所有重试都失败，抛出最后一个异常
         raise last_exception
 
-    def _save_to_history(self, user_question: str, ai_response: str, request_time: float):
-        """保存到历史记录"""
-        try:
-            if self.history_db:
-                self.history_db.add_history_record(
-                    api_name=self.name,
-                    api_platform=self.__class__.__name__.replace('Connector', '').replace('API', ''),
-                    user_question=user_question,
-                    ai_response=ai_response,
-                    request_time=request_time
-                )
-        except Exception as e:
-            print(f"保存历史记录失败: {e}")
 
     @abstractmethod
     def search(self, query: str, **kwargs) -> Tuple[str, float]:

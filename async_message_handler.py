@@ -20,20 +20,27 @@ import logging
 class AsyncMessageHandler:
     """异步消息处理器"""
     
-    def __init__(self, max_concurrent=5, max_log_lines=200):
+    def __init__(self, config=None, max_concurrent=5, max_log_lines=200):
         """
         初始化异步消息处理器
         
         Args:
+            config: 配置字典
             max_concurrent: 最大并发处理数量
             max_log_lines: 最大日志行数
         """
+        self.config = config or {}
         self.max_concurrent = max_concurrent
         self.max_log_lines = max_log_lines
         
         # 消息队列
         self.message_queue = asyncio.Queue()
         self.processing_messages = {}  # 正在处理的消息 {message_id: task}
+        
+        # 微信RPA发送队列 - 解决并发控制权冲突
+        self.wx_send_queue = asyncio.Queue()
+        self.wx_send_lock = asyncio.Lock()  # 微信发送操作锁
+        self.wx_sender_task = None  # 专用的微信发送任务
         
         # 日志系统
         self.process_logs = deque(maxlen=max_log_lines)  # 自动限制行数
@@ -144,26 +151,31 @@ class AsyncMessageHandler:
             
             self.log_process("INFO", f"API调用完成，耗时: {process_time:.2f}秒", message_id)
             
-            # 处理长消息分段
+            # 处理长消息分段并加入发送队列
             if len(reply) >= 2000:
                 segments = self.split_long_text(reply)
                 self.log_process("INFO", f"长消息分为 {len(segments)} 段发送", message_id)
                 for index, segment in enumerate(segments, 1):
-                    if hasattr(chat, 'SendMsg'):
-                        # 检查是否需要@发送者（群组消息）
-                        if hasattr(message, 'sender') and message.sender:
-                            chat.SendMsg(msg=segment, at=message.sender)
-                        else:
-                            chat.SendMsg(segment)
-                    self.log_process("INFO", f"发送第 {index}/{len(segments)} 段消息", message_id)
+                    # 加入微信发送队列而不是直接发送
+                    send_data = {
+                        'chat': chat,
+                        'message': segment,
+                        'at_user': message.sender if hasattr(message, 'sender') and message.sender else None,
+                        'message_id': message_id,
+                        'segment_info': f"{index}/{len(segments)}"
+                    }
+                    await self.wx_send_queue.put(send_data)
             else:
-                if hasattr(chat, 'SendMsg'):
-                    # 检查是否需要@发送者（群组消息）
-                    if hasattr(message, 'sender') and message.sender:
-                        chat.SendMsg(msg=reply, at=message.sender)
-                    else:
-                        chat.SendMsg(reply)
-                self.log_process("INFO", f"消息发送完成，长度: {len(reply)} 字符", message_id)
+                # 单条消息也加入发送队列
+                send_data = {
+                    'chat': chat,
+                    'message': reply,
+                    'at_user': message.sender if hasattr(message, 'sender') and message.sender else None,
+                    'message_id': message_id,
+                    'segment_info': None
+                }
+                await self.wx_send_queue.put(send_data)
+                self.log_process("INFO", f"消息已加入发送队列，长度: {len(reply)} 字符", message_id)
             
             message_data['status'] = 'completed'
             self.log_process("INFO", f"消息处理完成: {message.content[:50]}", message_id)
@@ -173,9 +185,16 @@ class AsyncMessageHandler:
             error_msg = f"消息处理失败: {str(e)}"
             self.log_process("ERROR", error_msg, message_id)
             
-            # 发送错误提示给用户
+            # 发送错误提示给用户（也通过队列发送）
             if hasattr(chat, 'SendMsg'):
-                chat.SendMsg("抱歉，处理您的消息时出现错误，请稍后再试。")
+                error_send_data = {
+                    'chat': chat,
+                    'message': "抱歉，处理您的消息时出现错误，请稍后再试。",
+                    'at_user': None,
+                    'message_id': message_id,
+                    'segment_info': None
+                }
+                await self.wx_send_queue.put(error_send_data)
         
         finally:
             # 清理处理中的消息记录
@@ -250,10 +269,10 @@ class AsyncMessageHandler:
     async def _call_ragflow_api(self, api_key: str, base_url: str, content: str, message_id: str) -> str:
         """调用RAGFlow API"""
         try:
-            from API import RAGFlowAPIConnector
+            from API import RAGflowAPIConnector
             
             # 创建RAGFlow连接器
-            connector = RAGFlowAPIConnector(
+            connector = RAGflowAPIConnector(
                 api_key=api_key,
                 base_url=base_url,
                 name=f"async_handler_{message_id}"
@@ -338,6 +357,54 @@ class AsyncMessageHandler:
         """
         return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
     
+    async def wx_message_sender(self):
+        """专用的微信消息发送处理器 - 串行化所有微信RPA操作"""
+        self.log_process("INFO", "微信消息发送器启动")
+        
+        while self.is_running:
+            try:
+                # 从发送队列获取消息
+                try:
+                    send_data = await asyncio.wait_for(self.wx_send_queue.get(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    continue
+                
+                # 使用锁确保微信操作的原子性
+                async with self.wx_send_lock:
+                    try:
+                        chat = send_data['chat']
+                        message = send_data['message']
+                        at_user = send_data['at_user']
+                        message_id = send_data['message_id']
+                        segment_info = send_data['segment_info']
+                        
+                        if hasattr(chat, 'SendMsg'):
+                            # 执行微信发送操作
+                            if at_user:
+                                chat.SendMsg(msg=message, at=at_user)
+                            else:
+                                chat.SendMsg(message)
+                            
+                            # 记录发送日志
+                            if segment_info:
+                                self.log_process("INFO", f"发送第 {segment_info} 段消息完成", message_id)
+                            else:
+                                self.log_process("INFO", f"消息发送完成，长度: {len(message)} 字符", message_id)
+                            
+                            # 微信操作间隔，避免过快操作导致问题
+                            await asyncio.sleep(0.5)
+                        
+                    except Exception as e:
+                        self.log_process("ERROR", f"微信发送失败: {str(e)}", send_data.get('message_id', 'unknown'))
+                        # 发送失败时稍微等待更长时间
+                        await asyncio.sleep(1.0)
+                
+            except Exception as e:
+                self.log_process("ERROR", f"微信发送器错误: {str(e)}")
+                await asyncio.sleep(1.0)
+        
+        self.log_process("INFO", "微信消息发送器已停止")
+    
     async def message_processor(self):
         """消息处理主循环"""
         self.log_process("INFO", "异步消息处理器启动")
@@ -380,13 +447,21 @@ class AsyncMessageHandler:
         def run_async_handler():
             self.loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.loop)
-            self.loop.run_until_complete(self.message_processor())
+            
+            # 创建两个任务
+            async def run_both():
+                # 启动微信发送器任务
+                self.wx_sender_task = asyncio.create_task(self.wx_message_sender())
+                # 运行消息处理器
+                await self.message_processor()
+            
+            self.loop.run_until_complete(run_both())
         
         # 在新线程中运行事件循环
         handler_thread = threading.Thread(target=run_async_handler, daemon=True)
         handler_thread.start()
         
-        self.log_process("INFO", "异步消息处理器已启动")
+        self.log_process("INFO", "异步消息处理器和微信发送器已启动")
     
     def stop(self):
         """停止异步消息处理器"""
@@ -422,47 +497,68 @@ def sync_add_message(chat, message, api_config=None):
     同步接口：添加消息到异步处理队列
     用于从同步代码中调用异步处理
     """
-    if not async_handler.is_running:
-        async_handler.start()
-    
-    # 生成唯一的消息ID，避免重复处理
-    import time
-    message_id = f"{chat.who}_{int(time.time()*1000)}"
-    
-    # 检查是否已经在处理队列中
-    if hasattr(async_handler, '_processing_ids'):
-        if message_id in async_handler._processing_ids:
-            print(f"消息 {message_id} 已在处理队列中，跳过重复添加")
-            return
-    else:
-        async_handler._processing_ids = set()
-    
-    # 标记正在处理
-    async_handler._processing_ids.add(message_id)
-    
-    # 在新线程中运行异步操作
-    def run_async():
-        try:
-            if async_handler.loop and async_handler.loop.is_running():
-                # 向运行中的事件循环添加任务
-                future = asyncio.run_coroutine_threadsafe(
-                    async_handler.add_message(chat, message, api_config),
-                    async_handler.loop
-                )
-                # 等待任务完成并移除ID标记
-                def cleanup_callback(fut):
-                    try:
-                        async_handler._processing_ids.discard(message_id)
-                    except:
-                        pass
-                future.add_done_callback(cleanup_callback)
-            else:
-                # 创建新的事件循环
-                asyncio.run(async_handler.add_message(chat, message, api_config))
+    try:
+        print(f"[DEBUG] sync_add_message 被调用: {chat.who} - {message.content[:50]}")
+            
+        if not async_handler.is_running:
+            print("[DEBUG] 异步处理器未运行，正在启动...")
+            async_handler.start()
+            # 等待一下让处理器启动
+            time.sleep(0.5)
+            
+        # 生成唯一的消息ID，避免重复处理
+        import time
+        message_id = f"{chat.who}_{int(time.time()*1000)}"
+            
+        print(f"[DEBUG] 消息ID: {message_id}")
+        print(f"[DEBUG] 异步处理器状态: running={async_handler.is_running}, loop={async_handler.loop is not None}")
+            
+        # 检查是否已经在处理队列中
+        if hasattr(async_handler, '_processing_ids'):
+            if message_id in async_handler._processing_ids:
+                print(f"消息 {message_id} 已在处理队列中，跳过重复添加")
+                return
+        else:
+            async_handler._processing_ids = set()
+            
+        # 标记正在处理
+        async_handler._processing_ids.add(message_id)
+            
+        # 在新线程中运行异步操作
+        def run_async():
+            try:
+                if async_handler.loop and async_handler.loop.is_running():
+                    print(f"[DEBUG] 向事件循环添加任务: {message_id}")
+                    # 向运行中的事件循环添加任务
+                    future = asyncio.run_coroutine_threadsafe(
+                        async_handler.add_message(chat, message, api_config),
+                        async_handler.loop
+                    )
+                    # 等待任务完成并移除ID标记
+                    def cleanup_callback(fut):
+                        try:
+                            async_handler._processing_ids.discard(message_id)
+                            if fut.exception():
+                                print(f"[ERROR] 异步任务异常: {fut.exception()}")
+                        except Exception as e:
+                            print(f"[ERROR] cleanup_callback 异常: {e}")
+                    future.add_done_callback(cleanup_callback)
+                else:
+                    print(f"[DEBUG] 事件循环不可用，创建新的事件循环处理: {message_id}")
+                    # 创建新的事件循环
+                    asyncio.run(async_handler.add_message(chat, message, api_config))
+                    async_handler._processing_ids.discard(message_id)
+            except Exception as e:
+                print(f"[ERROR] 添加消息到队列失败: {e}")
+                import traceback
+                traceback.print_exc()
                 async_handler._processing_ids.discard(message_id)
-        except Exception as e:
-            print(f"添加消息到队列失败: {e}")
-            async_handler._processing_ids.discard(message_id)
-    
-    # 在新线程中运行以避免阻塞
-    threading.Thread(target=run_async, daemon=True).start()
+            
+        # 在新线程中运行以避免阻塞
+        threading.Thread(target=run_async, daemon=True).start()
+        print(f"[DEBUG] 已启动处理线程: {message_id}")
+            
+    except Exception as e:
+        print(f"[ERROR] sync_add_message 异常: {e}")
+        import traceback
+        traceback.print_exc()

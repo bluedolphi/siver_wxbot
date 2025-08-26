@@ -71,14 +71,13 @@ class N8NAPIConnector(BaseAPIConnector):
             response_text = f"N8N API调用出错: {str(e)}"
         request_time = time.time() - start_time
         self.last_request_time = request_time
-        self._save_to_history(query, response_text, request_time)
+       
         return response_text, request_time
 
     def chat(self, messages: List[Dict[str, str]], **kwargs) -> Tuple[str, float]:
         user_messages = [msg for msg in messages if msg.get("role") == "user"]
         if user_messages:
             query = user_messages[-1].get("content", "")
-            kwargs["conversation_history"] = messages
             kwargs["message_count"] = len(messages)
             return self.search(query, **kwargs)
         return "没有用户消息", 0
