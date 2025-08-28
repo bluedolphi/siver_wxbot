@@ -99,7 +99,7 @@ def test_async_handler_import():
 def main():
     """主测试函数"""
     print("=" * 50)
-    print("siver_wxbot 功能测试")
+    print("dolphin_wxbot 功能测试")
     print("=" * 50)
     
     # 测试配置加载

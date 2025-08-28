@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Siver微信机器人 siver_wxbot
+# dolphin微信机器人 dolphin_wxbot
 # 作者：dolphi
 
 ver = "V2.0.0"         # 当前版本
@@ -9,10 +9,12 @@ import json
 import re
 import traceback
 import email_send
+import win32clipboard
+import win32con
 from openai import OpenAI
 from datetime import datetime, timedelta
 from wxauto import WeChat
-from wxauto.msgs import *
+from wxauto.msgs import (FriendMessage, SystemMessage)
 import async_message_handler
 
 # -------------------------------
@@ -149,6 +151,10 @@ def update_global_config():
     # 其他配置
     cmd = config.get('管理员', "")
     bot_name = config.get("机器人名字", '')
+
+    # 读取链接URL复制功能的开关，默认为False（禁用）
+    global enable_link_url_copy
+    enable_link_url_copy = config.get('enable_link_url_copy', False)
     
     # 初始化 OpenAI 客户端
     if api_key and base_url:
@@ -260,10 +266,129 @@ def set_config(id, new_content):
     refresh_config()  # 刷新配置
     print(now_time()+id+"已更改为:", config[id])  # 显示更新后的
 
+def extract_info_from_control(message) -> str:
+    """
+    安全地从消息的 control 对象中提取可读信息（如链接标题、位置名称）。
+    """
+    try:
+        if hasattr(message, 'control') and message.control:
+            # GetValuePattern().Value 通常包含链接的标题或位置的名称
+            if hasattr(message.control, 'GetValuePattern'):
+                pattern = message.control.GetValuePattern()
+                if pattern and pattern.Value:
+                    return pattern.Value.strip()
+            # Name 属性有时也包含有用信息
+            if hasattr(message.control, 'Name') and message.control.Name:
+                return message.control.Name.strip()
+    except Exception as e:
+        print(f"[ERROR] 从 control 对象提取信息失败: {e}")
+    return ""
+
+def preprocess_message_content(message):
+    """预处理消息内容，根据消息内容识别特殊类型并格式化"""
+    content = message.content
+
+    if content == "[链接]":
+        title = extract_info_from_control(message) or "链接分享"
+        print(f"[INFO] 提取到链接标题: {title}")
+
+        url = "(无法自动获取)"
+        # 检查是否启用了通过UI交互获取URL的功能
+        if enable_link_url_copy:
+            copied_url = try_copy_link_url_via_ui(message)
+            if copied_url:
+                url = copied_url
+
+        return f"用户分享了一个链接：\n标题：{title}\nURL：{url}\n\n请根据这个链接内容进行回复。"
+
+    elif content == "[位置]":
+        location_name = extract_info_from_control(message)
+        if location_name:
+            print(f"[INFO] 提取到位置名称: {location_name}")
+            return f"用户分享了一个位置：\n名称：{location_name}\n\n请根据这个位置信息进行回复。"
+        else:
+            return "用户分享了一个位置，但无法获取其名称。"
+
+    elif content == "[图片]":
+        return "用户发送了一张图片，请询问图片相关信息或提供图片处理建议"
+    elif content == "[文件]":
+        return "用户发送了一个文件，请询问文件相关信息或提供文件处理建议"
+    elif content == "[语音]":
+        return "用户发送了一条语音消息，请询问语音内容或提供语音相关回复"
+    elif content == "[视频]":
+        return "用户发送了一个视频，请询问视频内容或提供视频相关回复"
+    elif content == "[表情]":
+        return "用户发送了一个表情，请给出适当的回应"
+
+    # 默认返回原始文本内容
+    return content
+
+def get_clipboard_text():
+    """获取剪贴板中的文本内容"""
+    text = ""
+    try:
+        win32clipboard.OpenClipboard()
+        text = win32clipboard.GetClipboardData(win32con.CF_UNICODETEXT)
+        win32clipboard.CloseClipboard()
+    except Exception as e:
+        print(f"[ERROR] 读取剪贴板失败: {e}")
+    return text
+
+def try_copy_link_url_via_ui(message) -> str:
+    """
+    尝试通过模拟UI交互（右键->复制链接）来获取链接的URL。
+    这是一个实验性功能，可能会失败或不稳定。
+    """
+    if not hasattr(message, 'control') or not message.control:
+        return None
+
+    try:
+        print("[INFO] 尝试通过UI交互复制链接URL...")
+        # 1. 右键点击消息控件
+        message.control.RightClick()
+        time.sleep(0.5)  # 等待菜单弹出
+
+        # 2. 寻找并点击“复制链接”菜单项
+        # wxauto 的主微信对象 wx 是全局的，我们在这里直接使用它
+        # 菜单通常出现在微信主窗口的子控件中
+        menu = wx.UiaAPI.GetRootControl().GetMenuControl(Name='聊天菜单')
+        if menu:
+            # 菜单项的名称可能因微信版本而异，尝试多个可能性
+            copy_options = ['复制链接', 'Copy Link', '复制']
+            for option in copy_options:
+                menu_item = menu.GetMenuItemControl(Name=option)
+                if menu_item:
+                    print(f"[INFO] 找到菜单项 '{option}' 并点击")
+                    menu_item.Click()
+                    time.sleep(0.5) # 等待剪贴板更新
+
+                    # 3. 从剪贴板读取URL
+                    clipboard_content = get_clipboard_text()
+                    if clipboard_content and clipboard_content.startswith('http'):
+                        print(f"[INFO] 成功从剪贴板获取URL: {clipboard_content}")
+                        return clipboard_content
+                    else:
+                        print(f"[WARNING] 点击了'{option}'，但剪贴板内容不是有效URL: {clipboard_content}")
+                else:
+                    print(f"[DEBUG] 未找到菜单项: {option}")
+        else:
+            print("[WARNING] 未找到弹出的右键菜单")
+
+    except Exception as e:
+        print(f"[ERROR] UI交互复制链接失败: {e}")
+        # 确保菜单被关闭，避免干扰
+        try:
+            wx.UiaAPI.GetRootControl().SendKeys('{ESC}')
+        except:
+            pass
+    return None
+
 def split_long_text(text, chunk_size=2000):
     # 使用range生成切割起始位置序列：0, chunk_size, 2*chunk_size...
     # 通过列表推导式循环截取每个分段
     return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+
+
 
 # -------------------------------
 # DeepSeek API 调用
@@ -515,7 +640,8 @@ def wx_send_ai(chat, message):
         api_config = get_api_config_for_chat(chat.who)
         
         # 记录消息接收日志
-        print(f"{now_time()}[异步处理] 收到消息 - 窗口: {chat.who}, 内容: {message.content[:100]}")
+        #print(f"{now_time()}[异步处理] 收到消息 - 窗口: {chat.who}, 内容: {message.content[:100]}")
+        print(f"{now_time()}[异步处理] 收到消息 - 窗口: {chat.who}, 内容: {message}")
         print(f"{now_time()}[异步处理] 使用API配置: {api_config.get('name', 'Unknown')} ({api_config.get('id', 'Unknown')})")
         
         # 发送到异步处理队列
@@ -597,6 +723,10 @@ def process_message(chat, message):
     print(now_time()+f"\n{chat.who} 窗口 {message.sender} 说：{message.content}")
     # print(message.info) # 原始消息
 
+    # 预处理消息内容，特别处理链接消息等特殊类型
+    processed_content = preprocess_message_content(message)
+    if processed_content != message.content:
+        print(now_time()+f"消息预处理：{message.content} -> {processed_content[:100]}...")
 
     # 检查是否为需要监听的对象（使用新版 listen_rules）
     listen_rules = config.get('listen_rules', {})
@@ -655,8 +785,21 @@ def process_message(chat, message):
         
         if should_reply:
             print(now_time()+f"群组 {chat.who} 消息（@要求: {at_required}）：{content_to_process}")
-            # 创建临时消息对象用于异步处理
-            temp_message = type('obj', (object,), {'content': content_to_process, 'sender': message.sender, 'attr': message.attr})
+            # 创建临时消息对象用于异步处理，使用预处理后的内容
+            if AtMe in message.content:
+                # 如果原消息包含@，使用去除@后的预处理内容
+                final_content = re.sub(AtMe, "", processed_content).strip()
+            else:
+                # 否则直接使用预处理后的内容
+                final_content = processed_content
+
+            temp_message = type('obj', (object,), {
+                'content': final_content,
+                'sender': message.sender,
+                'attr': message.attr,
+                'type': getattr(message, 'type', 'text'),  # 添加消息类型
+                'info': getattr(message, 'info', {})  # 保留原始信息用于链接解析
+            })
             # 使用异步处理群组消息
             wx_send_ai(chat, temp_message)
             return
@@ -810,12 +953,25 @@ def process_message(chat, message):
             )
             chat.SendMsg(commands)
         else:
-            # 默认：回复 AI 生成的消息
-            wx_send_ai(chat, message)
+            # 默认：使用预处理后的内容回复 AI 生成的消息
+            processed_message = type('obj', (object,), {
+                'content': processed_content,
+                'sender': message.sender,
+                'attr': message.attr,
+                'info': getattr(message, 'info', {})  # 保留原始信息用于链接解析
+            })
+            wx_send_ai(chat, processed_message)
         return
 
-    # 普通好友消息：先提示已接收，再调用 AI 接口获取回复
-    wx_send_ai(chat, message)
+    # 普通好友消息：使用预处理后的内容调用 AI 接口获取回复
+    # 创建包含预处理内容的消息对象
+    processed_message = type('obj', (object,), {
+        'content': processed_content,
+        'sender': message.sender,
+        'attr': message.attr,
+        'info': getattr(message, 'info', {})  # 保留原始信息用于链接解析
+    })
+    wx_send_ai(chat, processed_message)
 
 run_flag = True  # 运行标记，用于控制程序退出
 def main():
@@ -842,12 +998,12 @@ def main():
     wait_time = 1  # 每1秒检查一次新消息
     check_interval = 10  # 每10次循环检查一次进程状态
     check_counter = 0
-    print(now_time()+'siver_wxbot初始化完成，开始监听消息(作者:dolphi)')
+    print(now_time()+'dolphin_wxbot初始化完成，开始监听消息(作者:dolphi)')
     
     # 发送启动通知给管理员（如果配置了）
     if cmd and wx:
         try:
-            wx.SendMsg('siver_wxbot初始化完成', who=cmd)
+            wx.SendMsg('dolphin_wxbot初始化完成', who=cmd)
         except:
             print("发送启动通知给管理员失败")
     
@@ -862,7 +1018,7 @@ def main():
             if status['queue_size'] > 0 or status['processing_count'] > 0:
                 print(f"{now_time()}异步处理器状态: 队列:{status['queue_size']}, 处理中:{status['processing_count']}")
     
-    print(now_time()+'siver_wxbot已停止运行')
+    print(now_time()+'dolphin_wxbot已停止运行')
 
 def start_bot():
     """启动机器人"""
@@ -889,7 +1045,7 @@ def stop_bot():
     
     # 标记主循环退出
     run_flag = False
-    print(now_time()+"siver_wxbot已停止运行")
+    print(now_time()+"dolphin_wxbot已停止运行")
 
 if __name__ == "__main__":
     main()  # 执行主函数

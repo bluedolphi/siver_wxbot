@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """main.py
-siver_wxbot 现代化配置管理器 V3.0
+dolphin_wxbot 现代化配置管理器 V3.0
 说明：
     现代化UI设计的配置管理器，采用渐变色标题栏、卡片式布局、标签页切换等特色功能，
     提供完整的机器人控制功能和实时日志系统。
@@ -179,7 +179,7 @@ class ConfigEditor:
     """
     def __init__(self, root):
         self.root = root
-        self.root.title("siver_wxbot 管理器 V2.0  dolphi")
+        self.root.title("dolphin_wxbot 管理器 V2.0  dolphi")
         self.root.geometry("800x800")
         
         # 机器人控制相关属性
@@ -228,8 +228,9 @@ class ConfigEditor:
         # 开始定时更新机器人输出显示
         self.update_output()
         
-        # 启动后添加欢迎日志
-        self.root.after(1000, lambda: self.log_message("siver_wxbot 配置管理器启动完成 - dolphi"))
+        # 启动后添加欢迎日志和检测wxauto库
+        self.root.after(1000, lambda: self.log_message("dolphin_wxbot 配置管理器启动完成 - dolphi"))
+        self.root.after(1200, self.detect_wx_library_and_log)
     
     def setup_ui(self):
         """构建主界面布局（现代化：渐变标题栏 + 卡片式 + 标签页 + 响应式）"""
@@ -245,6 +246,11 @@ class ConfigEditor:
         # Notebook 标签页
         notebook = tk_ttk.Notebook(self.root)
         notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # — 控制面板页（启动/停止/重启 等卡片按钮）
+        self.tab_control = ttk.Frame(notebook)
+        notebook.add(self.tab_control, text="控制面板")
+        self.build_control_tab(self.tab_control)
 
         # — API配置页
         self.tab_api = ttk.Frame(notebook)
@@ -266,15 +272,7 @@ class ConfigEditor:
         notebook.add(self.tab_memo, text="备忘录")
         self.build_memo_tab(self.tab_memo)
 
-        # — 控制面板页（启动/停止/重启 等卡片按钮）
-        self.tab_control = ttk.Frame(notebook)
-        notebook.add(self.tab_control, text="控制面板")
-        self.build_control_tab(self.tab_control)
-
-        # — 日志页（实时输出）
-        self.tab_logs = ttk.Frame(notebook)
-        notebook.add(self.tab_logs, text="日志")
-        self.build_logs_tab(self.tab_logs)
+        # 移除独立的日志标签页，日志功能已集成到控制面板中
 
         # 响应式：在根窗口大小变化时调整组件
         self.root.update_idletasks()
@@ -297,7 +295,7 @@ class ConfigEditor:
             canvas.create_line(i, 0, i, header_h, fill=color)
         canvas.create_text(18, header_h//2, anchor="w", fill="white",
                            font=("微软雅黑", 16, "bold"),
-                           text="siver_wxbot 管理器 · 现代化UI")
+                           text="dolphin_wxbot 管理器 · 现代化UI")
 
     def build_api_config_tab(self, parent):
         """API配置页：多API接口管理"""
@@ -1228,9 +1226,9 @@ class ConfigEditor:
         """控制页：按钮卡片 + 操作提示"""
         card = ttk.Frame(parent, bootstyle="light")
         card.pack(fill=tk.X, padx=10, pady=10)
-        header = ttk.Label(card, text="机器人控制", bootstyle="secondary",
-                           font=("微软雅黑", 11, "bold"), padding=(10, 8))
-        header.pack(anchor="w")
+        # header = ttk.Label(card, text="机器人控制", bootstyle="secondary",
+        #                    font=("微软雅黑", 11, "bold"), padding=(10, 8))
+        # header.pack(anchor="w")
 
         btn_frame = ttk.Frame(card)
         btn_frame.pack(padx=10, pady=(4, 10))
@@ -1238,54 +1236,229 @@ class ConfigEditor:
         btn_start = ttk.Button(btn_frame, text="启动机器人", command=self.start_bot, bootstyle="primary")
         btn_stop = ttk.Button(btn_frame, text="关闭机器人", command=self.stop_bot, bootstyle="danger")
         btn_restart = ttk.Button(btn_frame, text="重启机器人", command=self.restart_bot, bootstyle="warning")
+        btn_activate = ttk.Button(btn_frame, text="激活wxautox", command=self.activate_wxautox, bootstyle="success")
 
         btn_start.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(btn_start, base_style="primary")
         btn_stop.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(btn_stop, base_style="danger")
         btn_restart.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(btn_restart, base_style="warning")
+        btn_activate.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(btn_activate, base_style="success")
 
         ttk.Label(card, text="提示：配置修改会自动保存，重启机器人后生效。",
                   bootstyle="secondary").pack(anchor="w", padx=12, pady=(0,8))
 
-    def build_logs_tab(self, parent):
-        """日志页：实时输出文本"""
-        card = ttk.Frame(parent, bootstyle="light")
-        card.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        # 标题和状态显示
-        header_frame = ttk.Frame(card)
-        header_frame.pack(fill=tk.X, padx=10, pady=(10, 5))
-        
-        ttk.Label(header_frame, text="实时日志", bootstyle="secondary",
+        # 添加日志显示区域
+        self.build_logs_section(card)
+
+    def build_logs_section(self, parent):
+        """在控制面板中构建日志显示区域"""
+        # 日志区域标题
+        logs_header = ttk.Frame(parent)
+        logs_header.pack(fill=tk.X, padx=10, pady=(20, 5))
+
+        ttk.Label(logs_header, text="实时日志", bootstyle="secondary",
                  font=("微软雅黑", 11, "bold")).pack(side=tk.LEFT)
-        
+
+        # 日志操作按钮
+        logs_btn_frame = ttk.Frame(logs_header)
+        logs_btn_frame.pack(side=tk.RIGHT)
+
+        btn_clear_logs = ttk.Button(logs_btn_frame, text="清空日志", command=self.clear_logs, bootstyle="secondary")
+        btn_clear_logs.pack(side=tk.LEFT, padx=(0, 5))
+        self.attach_hover(btn_clear_logs, "secondary")
+
+        btn_export_logs = ttk.Button(logs_btn_frame, text="导出日志", command=self.export_logs, bootstyle="info")
+        btn_export_logs.pack(side=tk.LEFT)
+        self.attach_hover(btn_export_logs, "info")
+
         # 异步处理器状态显示
-        self.async_status_var = tk.StringVar(value="异步处理器: 未启动")
-        self.async_status_label = ttk.Label(header_frame, textvariable=self.async_status_var, 
-                                          bootstyle="info", font=("微软雅黑", 9))
-        self.async_status_label.pack(side=tk.RIGHT)
-        
-        # 控制按钮
-        btn_frame = ttk.Frame(header_frame)
-        btn_frame.pack(side=tk.RIGHT, padx=(0, 10))
-        
-        btn_clear = ttk.Button(btn_frame, text="清空日志", command=self.clear_logs, bootstyle="warning")
-        btn_clear.pack(side=tk.LEFT, padx=5)
-        self.attach_hover(btn_clear, "warning")
-        
+        status_frame = ttk.Frame(parent)
+        status_frame.pack(fill=tk.X, padx=10, pady=2)
+
+        ttk.Label(status_frame, text="异步处理器状态:", font=("微软雅黑", 9)).pack(side=tk.LEFT)
+        self.async_status_var = tk.StringVar(value="未启动")
+        self.async_status_label = ttk.Label(status_frame, textvariable=self.async_status_var, bootstyle="secondary", font=("微软雅黑", 9))
+        self.async_status_label.pack(side=tk.LEFT, padx=(5, 0))
+
         # 日志显示区域
-        output_frame = ttk.Frame(card)
-        output_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
-        self.output_text = tk.Text(output_frame, height=18, state=tk.DISABLED, wrap=tk.WORD)
-        
-        # 添加滚动条
-        scrollbar = ttk.Scrollbar(output_frame, command=self.output_text.yview)
+        logs_frame = ttk.Frame(parent)
+        logs_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        # 创建文本显示区域
+        self.output_text = tk.Text(logs_frame, height=15, wrap=tk.WORD, state=tk.DISABLED,
+                                  font=("Consolas", 9), bg="#f8f9fa", fg="#212529")
+        scrollbar = ttk.Scrollbar(logs_frame, command=self.output_text.yview)
         self.output_text.configure(yscrollcommand=scrollbar.set)
-        
         self.output_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         # 定期更新异步处理器状态
         self.update_async_status()
+
+    def build_logs_tab(self, parent):
+        """日志页：实时输出文本"""
+    def export_logs(self):
+        """导出日志到文件"""
+        try:
+            from tkinter import filedialog
+            import os
+
+            # 获取当前日志内容
+            log_content = self.output_text.get("1.0", tk.END)
+
+            if not log_content.strip():
+                messagebox.showinfo("提示", "当前没有日志内容可导出")
+                return
+
+            # 选择保存位置
+            filename = filedialog.asksaveasfilename(
+                title="导出日志文件",
+                defaultextension=".txt",
+                filetypes=[("文本文件", "*.txt"), ("所有文件", "*.*")],
+                initialname=f"wxbot_logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+            )
+
+            if filename:
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write(f"# dolphin_wxbot 日志导出\n")
+                    f.write(f"# 导出时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write(f"# ==========================================\n\n")
+                    f.write(log_content)
+
+                self.log_message(f"日志已导出到: {filename}")
+                messagebox.showinfo("成功", f"日志已成功导出到:\n{filename}")
+
+        except Exception as e:
+            error_msg = f"导出日志失败: {str(e)}"
+            self.log_message(f"错误: {error_msg}")
+            messagebox.showerror("错误", error_msg)
+
+    def detect_wx_library_and_log(self):
+        """检测当前使用的wxauto库类型并记录到日志"""
+        try:
+            # 尝试导入wxauto
+            import wxauto
+
+            # 检测是否为wxautox (Plus版本)
+            is_wxautox = False
+            activation_status = "未知"
+
+            try:
+                # 检测Plus版本特有的方法
+                from wxauto import WeChat
+                wx_temp = WeChat()
+
+                # 检测Plus版本特有方法
+                plus_methods = ['GetAllRecentGroups', 'GetFriendDetails', 'Moments', 'IsOnline']
+                detected_plus_methods = []
+
+                for method in plus_methods:
+                    if hasattr(wx_temp, method):
+                        detected_plus_methods.append(method)
+
+                if detected_plus_methods:
+                    is_wxautox = True
+
+                    # 尝试调用一个Plus方法来检测激活状态
+                    try:
+                        # 使用相对安全的方法检测激活状态
+                        if hasattr(wx_temp, 'GetAllRecentGroups'):
+                            result = wx_temp.GetAllRecentGroups()
+                            if result and not isinstance(result, bool):
+                                activation_status = "已激活"
+                            else:
+                                activation_status = "未激活或无权限"
+                        else:
+                            activation_status = "无法检测"
+                    except Exception as e:
+                        if "激活" in str(e) or "license" in str(e).lower():
+                            activation_status = "未激活"
+                        else:
+                            activation_status = "检测异常"
+
+            except Exception as e:
+                self.log_message(f"检测Plus功能时出错: {str(e)}")
+
+            # 获取版本信息
+            version_info = "未知版本"
+            try:
+                if hasattr(wxauto, '__version__'):
+                    version_info = wxauto.__version__
+                elif hasattr(wxauto, 'version'):
+                    version_info = wxauto.version
+            except:
+                pass
+
+            # 输出检测结果到日志
+            if is_wxautox:
+                self.log_message(f"✅ 检测到 wxautox (Plus版本) - 版本: {version_info}")
+                self.log_message(f"🔑 激活状态: {activation_status}")
+                self.log_message(f"🚀 可用Plus功能: {', '.join(detected_plus_methods)}")
+            else:
+                self.log_message(f"📦 检测到 wxauto (开源版本) - 版本: {version_info}")
+                self.log_message(f"ℹ️  如需更多功能，可升级到wxautox Plus版本")
+
+        except ImportError:
+            self.log_message("❌ 未检测到wxauto库，请先安装: pip install wxauto")
+        except Exception as e:
+            self.log_message(f"⚠️  wxauto库检测异常: {str(e)}")
+
+    def activate_wxautox(self):
+        """激活wxautox Plus版本"""
+        try:
+            # 弹出输入框获取激活码
+            modal = ModernModal(self.root, "激活wxautox", "请输入您的wxautox激活码:", "text")
+            activation_code = modal.show()
+
+            if not activation_code or not activation_code.strip():
+                self.log_message("❌ 激活取消：未输入激活码")
+                return
+
+            activation_code = activation_code.strip()
+            self.log_message(f"🔑 开始激活wxautox，激活码: {activation_code[:8]}...")
+
+            # 尝试激活
+            try:
+                import subprocess
+                import sys
+
+                # 构建激活命令
+                cmd = [sys.executable, "-m", "wxautox", "-a", activation_code]
+
+                self.log_message("⏳ 正在执行激活命令...")
+
+                # 执行激活命令
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+                # 处理激活结果
+                if result.returncode == 0:
+                    self.log_message("✅ wxautox激活成功！")
+                    self.log_message(f"📋 激活输出: {result.stdout}")
+
+                    # 重新检测库状态
+                    self.root.after(1000, self.detect_wx_library_and_log)
+
+                    messagebox.showinfo("激活成功", "wxautox已成功激活！\n请查看日志了解详细信息。")
+                else:
+                    error_msg = result.stderr or result.stdout or "未知错误"
+                    self.log_message(f"❌ wxautox激活失败: {error_msg}")
+                    messagebox.showerror("激活失败", f"激活失败，错误信息：\n{error_msg}")
+
+            except subprocess.TimeoutExpired:
+                self.log_message("⏰ 激活超时：激活命令执行超过30秒")
+                messagebox.showerror("激活超时", "激活命令执行超时，请检查网络连接或稍后重试。")
+
+            except FileNotFoundError:
+                self.log_message("❌ 激活失败：未找到wxautox命令")
+                messagebox.showerror("激活失败", "未找到wxautox命令，请确认已安装wxautox：\npip install wxautox")
+
+            except Exception as e:
+                self.log_message(f"❌ 激活异常: {str(e)}")
+                messagebox.showerror("激活异常", f"激活过程中发生异常：\n{str(e)}")
+
+        except Exception as e:
+            error_msg = f"激活功能异常: {str(e)}"
+            self.log_message(f"❌ {error_msg}")
+            messagebox.showerror("错误", error_msg)
         
     def clear_logs(self):
         """清空日志显示"""
@@ -1483,7 +1656,7 @@ class ConfigEditor:
                 # 创建新版配置文件结构
                 base_config = {
                     # 机器人设置
-                    "机器人名字": "siver_wxbot",
+                    "机器人名字": "dolphin_wxbot",
                     "prompt": "你是一个智能助手，请友好地回答用户问题。",
                     "管理员": "admin",
                     "default_api_id": "api_1",

@@ -539,6 +539,188 @@ For further exploration, you might reflect on: *What parts of your identity feel
 2025-08-26 16:09:50 [wxauto] [DEBUG] [msg.py:79]  content: 兴豪身份证, length: 8
 2025-08-26 16:09:50 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 兴豪身份证
 2025-08-26 16:10:14 [wxauto] [DEBUG] [wx.py:46]  监听消息失败：Traceback (most recent call last):
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\wx.py", line 44, in _listener_listen
+    self._get_listen_messages()
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\wx.py", line 222, in _get_listen_messages
+    msgs = chat.GetNewMessage()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\wx.py", line 155, in GetNewMessage
+    if (_last_chat := self.ChatInfo().get('chat_name')) != self._last_chat:
+                      ^^^^^^^^^^^^^^^
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\wx.py", line 89, in ChatInfo
+    return self.core.chatbox.get_info()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\ui\chatbox.py", line 101, in get_info
+    if self.control.ButtonControl(Name='公众号主页', searchDepth=9).Exists(0):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\uiautomation.py", line 6023, in Exists
+    control = FindControl(self.searchFromControl, self._CompareFunction, self.searchDepth, False, self.foundIndex)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\uiautomation.py", line 7905, in FindControl
+    if compare(child, depth):
+       ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\uiautomation.py", line 5976, in _CompareFunction
+    if value != control.Name:
+                ^^^^^^^^^^^^
+  File "E:\my program\python\dolphin_wxbot\.venv\Lib\site-packages\wxauto\uiautomation.py", line 5644, in Name
+    return self.Element.CurrentName or ''   # CurrentName may be None
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+_ctypes.COMError: (-2147220991, '事件无法调用任何订户', (None, None, None, 0, None))
+
+2025-08-26 16:10:15 [wxauto] [DEBUG] [wx.py:216]  窗口 蓝京 已关闭，移除监听
+2025-08-26 16:10:17 [wxauto] [DEBUG] [wx.py:216]  窗口 test00 已关闭，移除监听
+2025-08-26 16:11:00 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 16:11:01 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 16:11:09 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 16:11:10 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 16:11:11 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 16:11:12 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
+2025-08-26 16:11:12 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 16:11:13 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
+2025-08-26 16:11:15 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
+2025-08-26 16:11:18 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
+2025-08-26 16:11:18 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
+2025-08-26 16:11:19 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
+2025-08-26 16:11:21 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 16:11:45 [wxauto] [DEBUG] [msg.py:79]  content: 兴豪身份证, length: 8
+2025-08-26 16:11:45 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 兴豪身份证
+2025-08-26 16:37:35 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 16:37:35 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 16:37:42 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 16:37:43 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 16:37:43 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
+2025-08-26 16:37:46 [wxauto] [DEBUG] [sessionbox.py:128]  蓝京 完整匹配
+2025-08-26 16:37:46 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
+2025-08-26 16:37:46 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
+2025-08-26 16:37:47 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
+2025-08-26 16:37:48 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
+2025-08-26 16:37:51 [wxauto] [DEBUG] [sessionbox.py:128]  test00 完整匹配
+2025-08-26 16:37:51 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
+2025-08-26 16:37:51 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
+2025-08-26 16:37:53 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
+2025-08-26 16:37:54 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 16:38:19 [wxauto] [DEBUG] [msg.py:79]  content: 李燕佳收件地址, length: 8
+2025-08-26 16:38:19 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 16:38:19 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 李燕佳收件地址
+2025-08-26 16:38:42 [wxauto] [DEBUG] [msg.py:79]  content: 根据知识库内容，李燕佳的收件地址如下：
+
+1. **福建省漳州市龙文区钱隆学府卓越小区1栋1307**，联系电话：15959695599 ##0$$  
+2. 另一处联系信息显示为招标单位联系人（保亭黎族苗族自治县应急管理局），电话：18876125299，但未提供具体地址 ##8$$。  
+
+若需其他关联信息（如工作单位、学术研究等），可进一步补充说明。, length: 8
+2025-08-26 16:38:42 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 根据知识库内容，李燕佳的收件地址如下：
+
+1. **福建省漳州市龙文区钱隆学府卓越小区1栋1307**，联系电话：15959695599 ##0$$  
+2. 另一处联系信息显示为招标单位联系人（保亭黎族苗族自治县应急管理局），电话：18876125299，但未提供具体地址 ##8$$。  
+
+若需其他关联信息（如工作单位、学术研究等），可进一步补充说明。
+2025-08-26 16:39:12 [wxauto] [DEBUG] [msg.py:79]  content: 李燕佳收件地址, length: 10
+2025-08-26 16:39:12 [wxauto] [DEBUG] [msg.py:79]  content: 兴豪身份证, length: 10
+2025-08-26 16:39:12 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：test00 - 以下为新消息
+2025-08-26 16:39:12 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：test00 - 李燕佳收件地址
+2025-08-26 16:39:12 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：test00 - 兴豪身份证
+2025-08-26 16:39:20 [wxauto] [DEBUG] [msg.py:79]  content: 兴豪身份证, length: 8
+2025-08-26 16:39:20 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 16:39:20 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 兴豪身份证
+2025-08-26 16:39:24 [wxauto] [DEBUG] [msg.py:79]  content: 李燕佳收件地址, length: 8
+2025-08-26 16:39:24 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 李燕佳收件地址
+2025-08-26 16:39:27 [wxauto] [DEBUG] [msg.py:79]  content: 为了保护个人隐私，未经他人同意公开其收件地址等敏感信息是不合适的。如果您需要联系李燕佳，建议通过以下合规方式：
+
+1. **直接沟通**  
+   通过电话、社交平台或邮件向其本人询问地址，确保信息传递的隐私性。
+
+2. **隐私保护提示**  
+   - 任何收件地址、身份证号等信息均属于个人敏感数据，受法律保护。  
+   - 避免在公共平台（如社交媒体、论坛）透露他人隐私，以防被滥用。
+
+如需进一步帮助（如填写快递时的格式建议），可说明具体场景，我将提供通用指导。, length: 8
+2025-08-26 16:39:27 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - 为了保护个人隐私，未经他人同意公开其收件地址等敏感信息是不合适的。如果您需要联系李燕佳，建议通过以下合规方式：
+
+1. **直接沟通**  
+   通过电话、社交平台或邮件向其本人询问地址，确保信息传递的隐私性。
+
+2. **隐私保护提示**  
+   - 任何收件地址、身份证号等信息均属于个人敏感数据，受法律保护。  
+   - 避免在公共平台（如社交媒体、论坛）透露他人隐私，以防被滥用。
+
+如需进一步帮助（如填写快递时的格式建议），可说明具体场景，我将提供通用指导。
+2025-08-26 16:39:29 [wxauto] [DEBUG] [msg.py:79]  content: @蓝京 关于身份证的相关信息，请注意以下重要提示：
+
+1. **隐私保护**：身份证号码属于敏感个人信息，任何情况下都不应在公开平台透露自己或他人的身份证信息，以防被不法分子利用。
+
+2. **合法用途**：身份证仅限本人使用，用于办理银行业务、政务服务、实名认证等正规场景。严禁伪造、冒用或买卖身份证，此类行为涉嫌违法犯罪。
+
+3. **补办流程**：若身份证丢失，需立即到户籍所在地派出所挂失并申请补办。一般需携带户口本、填写申请表，并缴纳工本费。
+
+4. **安全提示**：
+   - 切勿随意拍摄身份证照片存于手机或上传网络。
+   - 提供身份证复印件时，应注明“仅限XX用途”并签注日期。
+   - 警惕索要身份证信息的陌生电话、链接或APP。
+
+如需进一步帮助（如办理流程、政策咨询），建议联系当地公安机关或访问政府官方网站（如公安部“互联网+政务服务”平台）。请始终牢记保护个人信息安全！, length: 8
+2025-08-26 16:39:29 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - @蓝京 关于身份证的相关信息，请注意以下重要提示：
+
+1. **隐私保护**：身份证号码属于敏感个人信息，任何情况下都不应在公开平台透露自己或他人的身份证信息，以防被不法分子利用。
+
+2. **合法用途**：身份证仅限本人使用，用于办理银行业务、政务服务、实名认证等正规场景。严禁伪造、冒用或买卖身份证，此类行为涉嫌违法犯罪。
+
+3. **补办流程**：若身份证丢失，需立即到户籍所在地派出所挂失并申请补办。一般需携带户口本、填写申请表，并缴纳工本费。
+
+4. **安全提示**：
+   - 切勿随意拍摄身份证照片存于手机或上传网络。
+   - 提供身份证复印件时，应注明“仅限XX用途”并签注日期。
+   - 警惕索要身份证信息的陌生电话、链接或APP。
+
+如需进一步帮助（如办理流程、政策咨询），建议联系当地公安机关或访问政府官方网站（如公安部“互联网+政务服务”平台）。请始终牢记保护个人信息安全！
+2025-08-26 16:39:37 [wxauto] [DEBUG] [msg.py:79]  content: 李燕佳的收件地址是：福建省漳州市龙文区钱隆学府卓越小区1栋1307，联系电话为15959695599 ##0$$。, length: 8
+2025-08-26 16:39:37 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 李燕佳的收件地址是：福建省漳州市龙文区钱隆学府卓越小区1栋1307，联系电话为15959695599 ##0$$。
+2025-08-26 16:39:42 [wxauto] [DEBUG] [msg.py:79]  content: @蓝京根据知识库内容，陈兴豪的身份证信息如下：  
+姓名：陈兴豪  
+身份证号码：35032220090303051X ##0$$  
+
+知识库中未找到其他相关信息。, length: 8
+2025-08-26 16:39:42 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - @蓝京根据知识库内容，陈兴豪的身份证信息如下：  
+姓名：陈兴豪  
+身份证号码：35032220090303051X ##0$$  
+
+知识库中未找到其他相关信息。
+2025-08-26 16:41:20 [wxauto] [DEBUG] [msg.py:79]  content: 帮我搜搜最新的一个新闻, length: 10
+2025-08-26 16:41:20 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：test00 - 以下为新消息
+2025-08-26 16:41:20 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：test00 - 帮我搜搜最新的一个新闻
+2025-08-26 16:41:26 [wxauto] [DEBUG] [msg.py:79]  content: @蓝京 我可以通过联网搜索获取最新的新闻，请告诉我你感兴趣的领域或关键词（例如科技、财经、体育、娱乐等），或者你想了解的具体事件。这样我能更精准地帮你查找！  
+
+例如：  
+- *“最近有哪些关于人工智能的新闻？”*  
+- *“有没有特斯拉的最新动态？”*  
+- *“2024年奥运会有什么新消息？”*  
+
+请提供更多细节，我会立即为你检索！, length: 8
+2025-08-26 16:41:26 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：test00 - @蓝京 我可以通过联网搜索获取最新的新闻，请告诉我你感兴趣的领域或关键词（例如科技、财经、体育、娱乐等），或者你想了解的具体事件。这样我能更精准地帮你查找！  
+
+例如：  
+- *“最近有哪些关于人工智能的新闻？”*  
+- *“有没有特斯拉的最新动态？”*  
+- *“2024年奥运会有什么新消息？”*  
+
+请提供更多细节，我会立即为你检索！
+2025-08-26 16:41:59 [wxauto] [DEBUG] [msg.py:79]  content: 帮我看一下这个月有多少人过生日，拉几个人, length: 8
+2025-08-26 16:41:59 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 16:41:59 [wxauto] [DEBUG] [wx.py:224]  [friend text]获取到新消息：蓝京 - 帮我看一下这个月有多少人过生日，拉几个人
+2025-08-26 16:42:12 [wxauto] [DEBUG] [msg.py:79]  content: 知识库中未找到您要的答案！, length: 8
+2025-08-26 16:42:12 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 知识库中未找到您要的答案！
+2025-08-26 18:07:26 [wxauto] [DEBUG] [wx.py:31]  开始监听
+2025-08-26 18:07:26 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 18:07:34 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
+2025-08-26 18:07:35 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
+2025-08-26 18:07:35 [wxauto] [DEBUG] [main.py:188]  蓝京 获取到已存在的子窗口: <wxauto - WeChatSubWnd object("蓝京")>
+2025-08-26 18:07:36 [wxauto] [DEBUG] [main.py:188]  test00 获取到已存在的子窗口: <wxauto - WeChatSubWnd object("test00")>
+2025-08-26 18:07:36 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
+2025-08-26 18:07:53 [wxauto] [DEBUG] [msg.py:79]  content: [链接], length: 17
+2025-08-26 18:07:53 [wxauto] [DEBUG] [wx.py:224]  [system base]获取到新消息：蓝京 - 以下为新消息
+2025-08-26 18:07:54 [wxauto] [DEBUG] [wx.py:224]  [friend other]获取到新消息：蓝京 - [链接]
+2025-08-26 18:07:59 [wxauto] [DEBUG] [msg.py:79]  content: 抱歉，处理您的消息时出现错误，请稍后再试。, length: 8
+2025-08-26 18:07:59 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 抱歉，处理您的消息时出现错误，请稍后再试。
+2025-08-27 08:58:34 [wxauto] [DEBUG] [wx.py:46]  监听消息失败：Traceback (most recent call last):
   File "E:\my program\python\siver_wxbot\.venv\Lib\site-packages\wxauto\wx.py", line 44, in _listener_listen
     self._get_listen_messages()
   File "E:\my program\python\siver_wxbot\.venv\Lib\site-packages\wxauto\wx.py", line 222, in _get_listen_messages
@@ -565,22 +747,5 @@ For further exploration, you might reflect on: *What parts of your identity feel
   File "E:\my program\python\siver_wxbot\.venv\Lib\site-packages\wxauto\uiautomation.py", line 5644, in Name
     return self.Element.CurrentName or ''   # CurrentName may be None
            ^^^^^^^^^^^^^^^^^^^^^^^^
-_ctypes.COMError: (-2147220991, '事件无法调用任何订户', (None, None, None, 0, None))
+_ctypes.COMError: (-2146233083, None, (None, None, None, 0, None))
 
-2025-08-26 16:10:15 [wxauto] [DEBUG] [wx.py:216]  窗口 蓝京 已关闭，移除监听
-2025-08-26 16:10:17 [wxauto] [DEBUG] [wx.py:216]  窗口 test00 已关闭，移除监听
-2025-08-26 16:11:00 [wxauto] [DEBUG] [wx.py:31]  开始监听
-2025-08-26 16:11:01 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
-2025-08-26 16:11:09 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: {阿标}
-2025-08-26 16:11:10 [wxauto] [DEBUG] [sessionbox.py:166]  未找到会话: {阿标}
-2025-08-26 16:11:11 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: 蓝京, False, False, 0.5
-2025-08-26 16:11:12 [wxauto] [DEBUG] [main.py:192]  蓝京 切换到聊天窗口: 蓝京
-2025-08-26 16:11:12 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: 蓝京
-2025-08-26 16:11:13 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: 蓝京
-2025-08-26 16:11:15 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: test00, False, False, 0.5
-2025-08-26 16:11:18 [wxauto] [DEBUG] [main.py:192]  test00 切换到聊天窗口: test00
-2025-08-26 16:11:18 [wxauto] [DEBUG] [sessionbox.py:152]  打开独立窗口: test00
-2025-08-26 16:11:19 [wxauto] [DEBUG] [sessionbox.py:156]  找到会话: test00
-2025-08-26 16:11:21 [wxauto] [DEBUG] [sessionbox.py:68]  切换聊天窗口: {阿标}, False, False, 0.5
-2025-08-26 16:11:45 [wxauto] [DEBUG] [msg.py:79]  content: 兴豪身份证, length: 8
-2025-08-26 16:11:45 [wxauto] [DEBUG] [wx.py:224]  [self text]获取到新消息：蓝京 - 兴豪身份证

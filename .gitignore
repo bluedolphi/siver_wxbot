@@ -1,0 +1,8 @@
+*.log
+*.logs
+*Log.txt
+*.pyc
+*.log
+__pycache__/*
+__pycache__/async_message_handler.cpython-312.pyc
+__pycache__/wxbot_preview.cpython-312.pyc

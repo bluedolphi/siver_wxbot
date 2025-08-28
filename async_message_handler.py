@@ -16,6 +16,7 @@ from collections import deque
 from typing import Dict, List, Optional, Tuple
 import traceback
 import logging
+from message_processor import MessageProcessor
 
 class AsyncMessageHandler:
     """异步消息处理器"""
@@ -32,7 +33,13 @@ class AsyncMessageHandler:
         self.config = config or {}
         self.max_concurrent = max_concurrent
         self.max_log_lines = max_log_lines
-        
+
+        # 消息处理器
+        self.message_processor = MessageProcessor(
+            enable_ocr=self.config.get('enable_ocr', False),
+            download_path=self.config.get('download_path', './downloads')
+        )
+
         # 消息队列
         self.message_queue = asyncio.Queue()
         self.processing_messages = {}  # 正在处理的消息 {message_id: task}
@@ -108,7 +115,7 @@ class AsyncMessageHandler:
             priority: 优先级（数字越小优先级越高）
         """
         message_id = f"{chat.who}_{int(time.time()*1000)}"
-        
+
         message_data = {
             'id': message_id,
             'chat': chat,
@@ -118,9 +125,10 @@ class AsyncMessageHandler:
             'timestamp': time.time(),
             'status': 'queued'
         }
-        
+
         await self.message_queue.put((priority, message_id, message_data))
-        self.log_process("INFO", f"消息已加入队列: {message.content[:50]}", message_id)
+        content_preview = getattr(message, 'content', str(message))[:50]
+        self.log_process("INFO", f"消息已加入队列: {content_preview}...", message_id)
     
     async def process_single_message(self, message_data: Dict):
         """
@@ -137,7 +145,13 @@ class AsyncMessageHandler:
         try:
             # 更新处理状态
             message_data['status'] = 'processing'
-            self.log_process("INFO", f"开始处理消息: {message.content[:50]}", message_id)
+
+            # 使用MessageProcessor提取实际内容
+            extracted_content = self.message_processor.extract_content(message)
+            msg_type = getattr(message, 'type', 'unknown')
+
+            self.log_process("INFO", f"开始处理消息(类型: {msg_type})", message_id)
+            self.log_process("INFO", f"提取内容: {extracted_content[:100]}...", message_id)
             
             # 立即回复处理中状态（可选）
             if hasattr(chat, 'SendMsg'):
@@ -146,7 +160,7 @@ class AsyncMessageHandler:
             
             # 调用API处理消息
             start_time = time.time()
-            reply = await self.call_api_async(message.content, api_config, message_id)
+            reply = await self.call_api_async(extracted_content, api_config, message_id)
             process_time = time.time() - start_time
             
             self.log_process("INFO", f"API调用完成，耗时: {process_time:.2f}秒", message_id)
@@ -178,7 +192,7 @@ class AsyncMessageHandler:
                 self.log_process("INFO", f"消息已加入发送队列，长度: {len(reply)} 字符", message_id)
             
             message_data['status'] = 'completed'
-            self.log_process("INFO", f"消息处理完成: {message.content[:50]}", message_id)
+            self.log_process("INFO", f"消息处理完成(类型: {msg_type}): {extracted_content[:50]}...", message_id)
             
         except Exception as e:
             message_data['status'] = 'error'
@@ -405,7 +419,7 @@ class AsyncMessageHandler:
         
         self.log_process("INFO", "微信消息发送器已停止")
     
-    async def message_processor(self):
+    async def message_processor_loop(self):
         """消息处理主循环"""
         self.log_process("INFO", "异步消息处理器启动")
         
@@ -453,7 +467,7 @@ class AsyncMessageHandler:
                 # 启动微信发送器任务
                 self.wx_sender_task = asyncio.create_task(self.wx_message_sender())
                 # 运行消息处理器
-                await self.message_processor()
+                await self.message_processor_loop()
             
             self.loop.run_until_complete(run_both())
         
@@ -498,7 +512,9 @@ def sync_add_message(chat, message, api_config=None):
     用于从同步代码中调用异步处理
     """
     try:
-        print(f"[DEBUG] sync_add_message 被调用: {chat.who} - {message.content[:50]}")
+        msg_type = getattr(message, 'type', 'unknown')
+        content_preview = getattr(message, 'content', str(message))[:50]
+        print(f"[DEBUG] sync_add_message 被调用: {chat.who} - 类型:{msg_type} - {content_preview}")
             
         if not async_handler.is_running:
             print("[DEBUG] 异步处理器未运行，正在启动...")
