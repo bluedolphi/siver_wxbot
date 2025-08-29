@@ -8,3 +8,5 @@ __pycache__/async_message_handler.cpython-312.pyc
 __pycache__/wxbot_preview.cpython-312.pyc
 config.json
 config_test.json
+dist/*
+test/*
