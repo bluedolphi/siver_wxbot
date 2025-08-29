@@ -231,17 +231,14 @@ class ConfigEditor:
         # 启动后添加欢迎日志和检测wxauto库
         self.root.after(1000, lambda: self.log_message("dolphin_wxbot 配置管理器启动完成 - dolphi"))
         self.root.after(1200, self.detect_wx_library_and_log)
+        self.root.after(1300, lambda: self.log_message("提示：配置修改会自动保存，重启机器人后生效。"))
     
     def setup_ui(self):
         """构建主界面布局（现代化：渐变标题栏 + 卡片式 + 标签页 + 响应式）"""
         # 顶部渐变标题栏
         self.create_gradient_header(self.root)
 
-        # 状态条（实时状态）
-        status_frame = ttk.Frame(self.root)
-        status_frame.pack(pady=4, fill=tk.X)
-        self.status_label = ttk.Label(status_frame, textvariable=self.status_var, bootstyle=self.status_style)
-        self.status_label.pack()
+
 
         # Notebook 标签页
         notebook = tk_ttk.Notebook(self.root)
@@ -604,10 +601,27 @@ class ConfigEditor:
                     except (KeyError, tkinter.TclError):
                         continue
             
+            # 收集消息类型过滤配置
+            message_types_filter = {
+                "enabled": self.message_filter_enabled.get() if hasattr(self, 'message_filter_enabled') else True,
+                "allowed_types": [],
+                "description": "控制哪些消息类型需要处理。如果enabled为false，则处理所有类型"
+            }
+
+            # 收集选中的消息类型
+            if hasattr(self, 'message_type_vars'):
+                for type_key, var in self.message_type_vars.items():
+                    if var.get():
+                        message_types_filter["allowed_types"].append(type_key)
+            else:
+                # 如果没有UI组件，默认允许所有类型
+                message_types_filter["allowed_types"] = ["text", "link", "location", "image", "file", "voice", "video", "emotion"]
+
             # 收集监听规则数据
             listen_rules = {
                 "global_bot_enabled": self.global_bot_switch.get() if hasattr(self, 'global_bot_switch') else True,
                 "default_api_id": self.default_api_var.get() if hasattr(self, 'default_api_var') else "",
+                "message_types_filter": message_types_filter,
                 "user_rules": user_rules,
                 "group_rules": group_rules
             }
@@ -706,14 +720,14 @@ class ConfigEditor:
         """构建全局监听规则设置"""
         frame = ttk.Frame(parent)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         # 群机器人开关
         switch_frame = ttk.Frame(frame)
         switch_frame.pack(fill=tk.X, pady=5)
         ttk.Label(switch_frame, text="群机器人开关:").pack(side=tk.LEFT)
         self.global_bot_switch = tk.BooleanVar(value=True)
         ttk.Checkbutton(switch_frame, variable=self.global_bot_switch).pack(side=tk.LEFT, padx=10)
-        
+
         # 默认API选择
         api_frame = ttk.Frame(frame)
         api_frame.pack(fill=tk.X, pady=5)
@@ -721,7 +735,7 @@ class ConfigEditor:
         self.default_api_var = tk.StringVar()
         self.default_api_combo = ttk.Combobox(api_frame, textvariable=self.default_api_var, state="readonly")
         self.default_api_combo.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
-        
+
         # 绑定下拉事件
         def update_global_api_options(event=None):
             """更新全局设置的API选项"""
@@ -731,10 +745,117 @@ class ConfigEditor:
             # 保持当前选择（如果仍然有效）
             if current_selection in api_names:
                 self.default_api_combo.set(current_selection)
-                
+
         self.default_api_combo.bind('<Button-1>', update_global_api_options)
         self.default_api_combo.bind('<Down>', update_global_api_options)
-    
+
+        # 消息类型过滤设置
+        self.build_message_type_filter(frame)
+
+    def build_message_type_filter(self, parent):
+        """构建消息类型过滤设置"""
+        # 消息类型过滤框架
+        filter_frame = ttk.LabelFrame(parent, text="消息类型过滤设置", padding=10)
+        filter_frame.pack(fill=tk.X, pady=(10, 5))
+
+        # 过滤功能开关
+        switch_frame = ttk.Frame(filter_frame)
+        switch_frame.pack(fill=tk.X, pady=(0, 10))
+        ttk.Label(switch_frame, text="启用消息类型过滤:").pack(side=tk.LEFT)
+        self.message_filter_enabled = tk.BooleanVar(value=True)
+        ttk.Checkbutton(switch_frame, variable=self.message_filter_enabled,
+                       command=self.on_message_filter_toggle).pack(side=tk.LEFT, padx=10)
+
+        # 消息类型选择区域
+        types_frame = ttk.Frame(filter_frame)
+        types_frame.pack(fill=tk.X)
+
+        ttk.Label(types_frame, text="允许处理的消息类型:",
+                 font=("微软雅黑", 9, "bold")).pack(anchor=tk.W, pady=(0, 5))
+
+        # 消息类型复选框容器
+        self.message_types_frame = ttk.Frame(types_frame)
+        self.message_types_frame.pack(fill=tk.X)
+
+        # 定义消息类型及其显示名称
+        self.message_types = [
+            ("text", "文本消息", "普通的文字消息"),
+            ("link", "链接消息", "分享的网页链接"),
+            ("location", "位置消息", "地理位置信息"),
+            ("image", "图片消息", "图片和照片"),
+            ("file", "文件消息", "各种文档和文件"),
+            ("voice", "语音消息", "语音和音频"),
+            ("video", "视频消息", "视频文件"),
+            ("emotion", "表情消息", "表情包和动画表情")
+        ]
+
+        # 创建消息类型复选框变量
+        self.message_type_vars = {}
+
+        # 创建两列布局
+        left_frame = ttk.Frame(self.message_types_frame)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        right_frame = ttk.Frame(self.message_types_frame)
+        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # 分配消息类型到两列
+        for i, (type_key, type_name, type_desc) in enumerate(self.message_types):
+            # 创建复选框变量
+            var = tk.BooleanVar(value=True)
+            self.message_type_vars[type_key] = var
+
+            # 选择放置的列
+            parent_frame = left_frame if i < 4 else right_frame
+
+            # 创建复选框框架
+            cb_frame = ttk.Frame(parent_frame)
+            cb_frame.pack(fill=tk.X, pady=2)
+
+            # 复选框
+            cb = ttk.Checkbutton(cb_frame, text=type_name, variable=var)
+            cb.pack(side=tk.LEFT)
+
+            # 添加提示信息
+            self.attach_hover(cb, type_desc)
+
+        # 快捷操作按钮
+        btn_frame = ttk.Frame(filter_frame)
+        btn_frame.pack(fill=tk.X, pady=(10, 0))
+
+        ttk.Button(btn_frame, text="全选", command=self.select_all_message_types,
+                  bootstyle="secondary-outline").pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(btn_frame, text="全不选", command=self.deselect_all_message_types,
+                  bootstyle="secondary-outline").pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="仅文本", command=self.select_text_only,
+                  bootstyle="secondary-outline").pack(side=tk.LEFT, padx=5)
+
+    def on_message_filter_toggle(self):
+        """消息过滤开关切换事件"""
+        enabled = self.message_filter_enabled.get()
+        state = "normal" if enabled else "disabled"
+
+        # 更新所有消息类型复选框的状态
+        for widget in self.message_types_frame.winfo_children():
+            for child in widget.winfo_children():
+                for grandchild in child.winfo_children():
+                    if isinstance(grandchild, ttk.Checkbutton):
+                        grandchild.configure(state=state)
+
+    def select_all_message_types(self):
+        """选择所有消息类型"""
+        for var in self.message_type_vars.values():
+            var.set(True)
+
+    def deselect_all_message_types(self):
+        """取消选择所有消息类型"""
+        for var in self.message_type_vars.values():
+            var.set(False)
+
+    def select_text_only(self):
+        """仅选择文本消息"""
+        for type_key, var in self.message_type_vars.items():
+            var.set(type_key == "text")
+
     def build_user_rules(self, parent):
         """构建用户监听规则"""
         frame = ttk.Frame(parent)
@@ -1233,18 +1354,13 @@ class ConfigEditor:
         btn_frame = ttk.Frame(card)
         btn_frame.pack(padx=10, pady=(4, 10))
 
-        btn_start = ttk.Button(btn_frame, text="启动机器人", command=self.start_bot, bootstyle="primary")
-        btn_stop = ttk.Button(btn_frame, text="关闭机器人", command=self.stop_bot, bootstyle="danger")
+        self.toggle_bot_button = ttk.Button(btn_frame, text="启动机器人", command=self.start_bot, bootstyle="primary")
         btn_restart = ttk.Button(btn_frame, text="重启机器人", command=self.restart_bot, bootstyle="warning")
         btn_activate = ttk.Button(btn_frame, text="激活wxautox", command=self.activate_wxautox, bootstyle="success")
 
-        btn_start.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(btn_start, base_style="primary")
-        btn_stop.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(btn_stop, base_style="danger")
+        self.toggle_bot_button.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(self.toggle_bot_button, base_style="primary")
         btn_restart.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(btn_restart, base_style="warning")
         btn_activate.pack(side=tk.LEFT, padx=6, pady=6); self.attach_hover(btn_activate, base_style="success")
-
-        ttk.Label(card, text="提示：配置修改会自动保存，重启机器人后生效。",
-                  bootstyle="secondary").pack(anchor="w", padx=12, pady=(0,8))
 
         # 添加日志显示区域
         self.build_logs_section(card)
@@ -1427,7 +1543,7 @@ class ConfigEditor:
                 self.log_message("⏳ 正在执行激活命令...")
 
                 # 执行激活命令
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+                result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', timeout=30)
 
                 # 处理激活结果
                 if result.returncode == 0:
@@ -1753,16 +1869,30 @@ class ConfigEditor:
     def load_listen_rules(self):
         """加载监听规则"""
         listen_rules = self.config.get('listen_rules', {})
-        
+
         if hasattr(self, 'global_bot_switch'):
             self.global_bot_switch.set(listen_rules.get('global_bot_enabled', True))
-        
+
         if hasattr(self, 'default_api_var'):
             self.default_api_var.set(listen_rules.get('default_api_id', ''))
-        
+
+        # 加载消息类型过滤配置
+        message_filter = listen_rules.get('message_types_filter', {})
+
+        if hasattr(self, 'message_filter_enabled'):
+            self.message_filter_enabled.set(message_filter.get('enabled', True))
+
+        if hasattr(self, 'message_type_vars'):
+            allowed_types = message_filter.get('allowed_types', ["text", "link", "location", "image", "file", "voice", "video", "emotion"])
+            for type_key, var in self.message_type_vars.items():
+                var.set(type_key in allowed_types)
+
+            # 更新UI状态
+            self.on_message_filter_toggle()
+
         self.user_rules = listen_rules.get('user_rules', [])
         self.group_rules = listen_rules.get('group_rules', [])
-        
+
         if hasattr(self, 'users_list_frame'):
             self.refresh_user_rules()
         if hasattr(self, 'groups_list_frame'):
@@ -1845,10 +1975,10 @@ class ConfigEditor:
             
             self.bot_thread = threading.Thread(target=run_bot, daemon=True)
             self.bot_thread.start()
-            # 修改状态显示为绿色（运行中）
-            self.status_style = "inverse-success"
-            self.status_label.config(bootstyle=self.status_style)
+            # 修改状态
             self.status_var.set("状态：机器人启动成功")
+            self.toggle_bot_button.config(text="停止机器人", command=self.stop_bot, bootstyle="danger")
+            self.log_message("机器人服务已启动")
         except Exception as e:
             error_msg = f"启动失败：{str(e)}\n{traceback.format_exc()}"
             self.status_var.set("状态：启动失败")
@@ -1865,10 +1995,10 @@ class ConfigEditor:
                 # _async_raise(self.bot_thread.ident, KeyboardInterrupt)
                 # self.bot_thread.join(timeout=10)
                 wxbot_preview.stop_bot() # 调用 wxbot_preview 模块的停止函数
-                self.status_style = "inverse-danger"
-                self.status_label.config(bootstyle=self.status_style)
                 self.status_var.set("状态：机器人已关闭")
+                self.toggle_bot_button.config(text="启动机器人", command=self.start_bot, bootstyle="primary")
                 self.bot_thread = None
+                self.log_message("机器人服务已停止")
             else:
                 self.status_var.set("状态：没有运行中的机器人")
         except Exception as e:

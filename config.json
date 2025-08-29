@@ -41,6 +41,16 @@
     "listen_rules": {
         "global_bot_enabled": true,
         "default_api_id": "ragflow (api_1)",
+        "message_types_filter": {
+            "enabled": true,
+            "allowed_types": [
+                "text",
+                "link",
+                "location",
+                "voice"
+            ],
+            "description": "控制哪些消息类型需要处理。如果enabled为false，则处理所有类型"
+        },
         "user_rules": [
             {
                 "name": "蓝京",

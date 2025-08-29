@@ -271,6 +271,8 @@ def extract_info_from_control(message) -> str:
     安全地从消息的 control 对象中提取可读信息（如链接标题、位置名称）。
     """
     try:
+        
+
         if hasattr(message, 'control') and message.control:
             # GetValuePattern().Value 通常包含链接的标题或位置的名称
             if hasattr(message.control, 'GetValuePattern'):
@@ -284,16 +286,69 @@ def extract_info_from_control(message) -> str:
         print(f"[ERROR] 从 control 对象提取信息失败: {e}")
     return ""
 
+def get_message_type_from_content(content):
+    """根据消息内容判断消息类型"""
+    if content == "[链接]":
+        return "link"
+    elif content == "[位置]":
+        return "location"
+    elif content == "[图片]":
+        return "image"
+    elif content == "[文件]":
+        return "file"
+    elif content == "[语音]":
+        return "voice"
+    elif content == "[视频]":
+        return "video"
+    elif content == "[表情]":
+        return "emotion"
+    else:
+        return "text"
+
+def is_message_type_allowed(message_type):
+    """检查消息类型是否在允许处理的列表中"""
+    try:
+        # 获取消息类型过滤配置
+        listen_rules = config.get('listen_rules', {})
+        message_filter = listen_rules.get('message_types_filter', {})
+
+        # 如果过滤功能未启用，允许所有类型
+        if not message_filter.get('enabled', True):
+            return True
+
+        # 获取允许的消息类型列表
+        allowed_types = message_filter.get('allowed_types', [])
+
+        # 如果没有配置允许列表，默认允许所有类型
+        if not allowed_types:
+            return True
+
+        # 检查当前消息类型是否在允许列表中
+        return message_type in allowed_types
+
+    except Exception as e:
+        print(f"[WARNING] 检查消息类型过滤配置失败: {e}")
+        # 出错时默认允许处理
+        return True
+
 def preprocess_message_content(message):
     """预处理消息内容，根据消息内容识别特殊类型并格式化"""
     content = message.content
 
-    if content == "[链接]":
-        title = extract_info_from_control(message) or "链接分享"
-        print(f"[INFO] 提取到链接标题: {title}")
+    # 判断消息类型
+    message_type = get_message_type_from_content(content)
 
-        url = "(无法自动获取)"
+    # 检查是否允许处理此类型的消息
+    if not is_message_type_allowed(message_type):
+        print(f"[INFO] 消息类型 '{message_type}' 不在允许处理列表中，跳过处理")
+        return None  # 返回None表示不处理此消息
+
+    print(f"[INFO] 处理消息类型: {message_type}")
+
+    if content == "[链接]":
         # 检查是否启用了通过UI交互获取URL的功能
+        title = "未知链接"
+        url = "无法获取URL"
         if enable_link_url_copy:
             copied_url = try_copy_link_url_via_ui(message)
             if copied_url:
@@ -549,6 +604,8 @@ def message_handle_callback(msg, chat):
     """消息处理回调"""
     text = datetime.now().strftime("%Y/%m/%d %H:%M:%S ") + f'类型：{msg.type} 属性：{msg.attr} 窗口：{chat.who} 发送人：{msg.sender_remark} - 消息：{msg.content}'
     print(text)
+
+
     if isinstance(msg, FriendMessage): # 好友群友的消息
         process_message(chat, msg)
     elif isinstance(msg, SystemMessage): # 系统的消息
@@ -645,6 +702,7 @@ def wx_send_ai(chat, message):
         print(f"{now_time()}[异步处理] 使用API配置: {api_config.get('name', 'Unknown')} ({api_config.get('id', 'Unknown')})")
         
         # 发送到异步处理队列
+        
         async_message_handler.sync_add_message(chat, message, api_config)
         
         # 可选：立即回复处理状态（避免用户等待焦虑）
@@ -716,6 +774,9 @@ def process_message(chat, message):
         message: 消息对象（包含 type, sender, content 等信息）
     """
     global DS_NOW_MOD, group_welcome, group_welcome_msg
+
+
+
     # 只处理好友消息
     if message.attr != 'friend':
         return
@@ -725,6 +786,12 @@ def process_message(chat, message):
 
     # 预处理消息内容，特别处理链接消息等特殊类型
     processed_content = preprocess_message_content(message)
+
+    # 如果返回None，说明消息类型不在允许处理列表中，直接返回
+    if processed_content is None:
+        print(now_time()+f"消息类型不在允许处理列表中，跳过处理：{message.content}")
+        return
+
     if processed_content != message.content:
         print(now_time()+f"消息预处理：{message.content} -> {processed_content[:100]}...")
 
@@ -786,6 +853,11 @@ def process_message(chat, message):
         if should_reply:
             print(now_time()+f"群组 {chat.who} 消息（@要求: {at_required}）：{content_to_process}")
             # 创建临时消息对象用于异步处理，使用预处理后的内容
+            # 如果预处理返回None，说明消息类型不允许处理，直接返回
+            if processed_content is None:
+                print(now_time()+f"群组消息类型不在允许处理列表中，跳过处理：{message.content}")
+                return
+
             if AtMe in message.content:
                 # 如果原消息包含@，使用去除@后的预处理内容
                 final_content = re.sub(AtMe, "", processed_content).strip()
@@ -954,6 +1026,11 @@ def process_message(chat, message):
             chat.SendMsg(commands)
         else:
             # 默认：使用预处理后的内容回复 AI 生成的消息
+            # 如果预处理返回None，说明消息类型不允许处理，直接返回
+            if processed_content is None:
+                print(now_time()+f"管理员消息类型不在允许处理列表中，跳过处理：{message.content}")
+                return
+
             processed_message = type('obj', (object,), {
                 'content': processed_content,
                 'sender': message.sender,
@@ -964,6 +1041,11 @@ def process_message(chat, message):
         return
 
     # 普通好友消息：使用预处理后的内容调用 AI 接口获取回复
+    # 如果预处理返回None，说明消息类型不允许处理，直接返回
+    if processed_content is None:
+        print(now_time()+f"好友消息类型不在允许处理列表中，跳过处理：{message.content}")
+        return
+
     # 创建包含预处理内容的消息对象
     processed_message = type('obj', (object,), {
         'content': processed_content,

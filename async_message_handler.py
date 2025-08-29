@@ -41,11 +41,11 @@ class AsyncMessageHandler:
         )
 
         # 消息队列
-        self.message_queue = asyncio.Queue()
+        self.message_queue = None
         self.processing_messages = {}  # 正在处理的消息 {message_id: task}
-        
+
         # 微信RPA发送队列 - 解决并发控制权冲突
-        self.wx_send_queue = asyncio.Queue()
+        self.wx_send_queue = None
         self.wx_send_lock = asyncio.Lock()  # 微信发送操作锁
         self.wx_sender_task = None  # 专用的微信发送任务
         
@@ -461,14 +461,19 @@ class AsyncMessageHandler:
         def run_async_handler():
             self.loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.loop)
-            
+
+            # 在正确的事件循环中创建队列
+            self.message_queue = asyncio.Queue()
+            self.wx_send_queue = asyncio.Queue()
+            self.log_process("INFO", "Asyncio queues created in the new event loop.")
+
             # 创建两个任务
             async def run_both():
                 # 启动微信发送器任务
                 self.wx_sender_task = asyncio.create_task(self.wx_message_sender())
                 # 运行消息处理器
                 await self.message_processor_loop()
-            
+
             self.loop.run_until_complete(run_both())
         
         # 在新线程中运行事件循环

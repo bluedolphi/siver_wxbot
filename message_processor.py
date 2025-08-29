@@ -9,6 +9,7 @@
 import logging
 from pathlib import Path
 from typing import Union, Optional
+import re
 
 class MessageProcessor:
     """消息处理器 - 处理各种类型的微信消息"""
@@ -117,25 +118,30 @@ class MessageProcessor:
     def _extract_link_content(self, msg) -> str:
         """提取链接消息内容"""
         try:
-            # 尝试获取真实URL (Plus版本功能)
+            # 优先尝试获取真实URL (Plus版本功能)
             if hasattr(msg, 'get_url'):
                 url = msg.get_url()
-                self.logger.info(f"提取链接URL: {url}")
-                return url
-            else:
-                # 降级处理：从info中提取链接信息或使用预处理内容
-                content = getattr(msg, 'content', '[链接消息]')
+                if url:
+                    self.logger.info(f"通过 get_url() 提取链接URL: {url}")
+                    return url
 
-                # 如果content已经是预处理过的链接信息，直接返回
-                if "用户分享了一个链接" in content or "标题：" in content:
-                    return content
+            # 降级处理1：从 info 属性中用正则提取
+            if hasattr(msg, 'info') and isinstance(msg.info, str):
+                url_match = re.search(r'<url>(.*?)<\/url>', msg.info)
+                if url_match:
+                    url = url_match.group(1)
+                    self.logger.info(f"通过正则从 info 中提取链接URL: {url}")
+                    return url
 
-                self.logger.info(f"链接消息内容: {content}")
-                return f"[链接消息] {content}"
+            # 降级处理2：返回预处理的 content
+            content = getattr(msg, 'content', '[链接消息]')
+            self.logger.warning(f"无法提取链接URL，返回 content: {content}")
+            return content
+
         except Exception as e:
             self.logger.error(f"链接提取失败: {e}")
             content = getattr(msg, 'content', '[链接消息]')
-            return f"[链接消息] {content}"
+            return f"[链接消息] {content} - 提取异常"
     
     def _extract_image_content(self, msg) -> str:
         """提取图片消息内容"""
