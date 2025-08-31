@@ -18,6 +18,8 @@ class RAGflowAPIConnector(BaseAPIConnector):
     def search(self, query: str, **kwargs) -> Tuple[str, float]:
         start_time = time.time()
         try:
+            if not self.base_url:
+                raise ValueError("RAGflow base_url is not configured.")
             endpoint = self.base_url.rstrip('/')
             data = {
                 "model": kwargs.get("model", "model"),
